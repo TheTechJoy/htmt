@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A product planning meeting with five people and an AI notetaker.
+     Shows: join/leave events, screen share, file shared, crosstalk,
+     a proposed decision that is later accepted, risks, and an agent summary. -->
+<transcript
+  xmlns="https://thetechjoy.com/htmt/1.0"
+  version="1.0"
+  id="planning-2026-09-16"
+  title="Mobile App Planning"
+  date="2026-09-16T10:00:00-05:00"
+  duration="00:41:20"
+  xml:lang="en">
+
+  <meta>
+    <property name="source-system">Example Meetings</property>
+    <property name="transcription-method">asr</property>
+    <property name="team">mobile</property>
+  </meta>
+
+  <participants>
+    <person id="ana" name="Ana Silva" role="host" />
+    <person id="ben" name="Ben Carter" role="engineer" />
+    <person id="chloe" name="Chloe Kim" role="designer" />
+    <person id="omar" name="Omar Haddad" role="qa" />
+    <person id="grace" name="Grace Liu" role="support" />
+    <agent id="scribe" name="Notetaker" model="example-model-2" provider="Example AI" role="notetaker" />
+  </participants>
+
+  <media id="rec" type="video" src="./planning-2026-09-16.mp4" duration="00:41:20" />
+
+  <body>
+
+    <event type="join" speaker="grace" start="00:00:42" />
+
+    <topic id="release" name="Next release" start="00:00:00" end="00:18:00">
+
+      <turn id="t1" speaker="ana" start="00:00:05" end="00:00:14">
+        Thanks for joining. Main goal today is to agree on what goes into
+        version 3.2.
+      </turn>
+
+      <event type="screen-share" speaker="ana" start="00:00:20" end="00:06:10">
+        Release board
+        <ref href="https://tracker.example.com/boards/mobile-3-2" type="dashboard">Mobile 3.2 board</ref>
+      </event>
+
+      <turn id="t2" speaker="ben" start="00:01:02" end="00:01:30">
+        <claim confidence="0.6">
+          Offline mode is about two weeks of work if we reuse the sync layer.
+        </claim>
+      </turn>
+
+      <turn id="t3" speaker="omar" start="00:01:33" end="00:01:58">
+        <risk id="r1" severity="high"
+              summary="Offline mode needs a full regression pass">
+          If offline mode goes in, we need a full regression pass on sync.
+          That is another week.
+        </risk>
+      </turn>
+
+      <turn id="t4" speaker="grace" start="00:02:05" end="00:02:40">
+        <fact source="https://support.example.com/reports/2026-08">
+          Offline access was the top feature request in support tickets last
+          month.
+        </fact>
+      </turn>
+
+      <event type="crosstalk" start="00:02:41" end="00:02:47" />
+
+      <turn id="t5" speaker="ana" start="00:02:48" end="00:03:15">
+        <decision id="d1" status="proposed"
+                  summary="Ship offline mode in 3.2 behind a feature flag">
+          Proposal: offline mode goes in 3.2, behind a flag, so we can turn it
+          off if regression finds problems.
+        </decision>
+      </turn>
+
+      <turn id="t6" speaker="chloe" start="00:03:20" end="00:03:52">
+        <question id="q1">Do we need a new empty state for when the user is offline?</question>
+      </turn>
+
+      <turn id="t7" speaker="ben" start="00:03:55" end="00:04:08">
+        <answer to="q1">Yes. Right now the app just shows a spinner forever.</answer>
+      </turn>
+
+      <turn id="t8" speaker="chloe" start="00:04:10" end="00:04:30">
+        <action id="a1" owner="chloe" due="2026-09-20" status="open"
+                summary="Design the offline empty state">
+          I will mock up the offline state by Friday.
+        </action>
+      </turn>
+
+      <event type="file-shared" speaker="chloe" start="00:04:35">
+        <ref href="https://files.example.com/design/offline-sketches.fig">Early offline sketches</ref>
+      </event>
+
+      <turn id="t9" speaker="omar" start="00:05:10" end="00:05:31">
+        With the flag in place, I am comfortable.
+        <action id="a2" owner="omar" due="2026-09-25" status="open"
+                summary="Write the sync regression plan">
+          I will write the regression plan for sync.
+        </action>
+      </turn>
+
+      <turn id="t10" speaker="ana" start="00:05:35" end="00:05:44">
+        <decision id="d2" status="accepted" supersedes="d1"
+                  summary="Offline mode ships in 3.2 behind a flag, pending regression">
+          Then that is decided. Offline mode is in, behind a flag.
+        </decision>
+      </turn>
+
+    </topic>
+
+    <event type="leave" speaker="grace" start="00:18:05" />
+
+    <topic id="bugs" name="Open bugs" start="00:18:00" end="00:41:20">
+
+      <turn id="t11" speaker="omar" start="00:18:10" end="00:18:36">
+        Two crash bugs are still open on older Android versions.
+        <ref href="https://tracker.example.com/browse/MOB-412" type="ticket">MOB-412</ref>
+        and
+        <ref href="https://tracker.example.com/browse/MOB-418" type="ticket">MOB-418</ref>.
+      </turn>
+
+      <turn id="t12" speaker="ben" start="00:18:40" end="00:18:58">
+        <action id="a3" owner="ben" due="2026-09-19" status="open"
+                summary="Fix MOB-412 and MOB-418">
+          I will take both. They look like the same root issue.
+        </action>
+      </turn>
+
+      <event type="laughter" start="00:19:02" />
+
+    </topic>
+
+    <note type="summary" author="scribe">
+      Offline mode ships in 3.2 behind a flag (<ref href="#d2">d2</ref>).
+      Open risk: sync regression (<ref href="#r1">r1</ref>). Actions:
+      <ref href="#a1">a1</ref>, <ref href="#a2">a2</ref>, <ref href="#a3">a3</ref>.
+    </note>
+
+  </body>
+</transcript>

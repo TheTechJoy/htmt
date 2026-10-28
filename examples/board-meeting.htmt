@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A board meeting of a fictional nonprofit with many speakers, a guest,
+     and a public comment period. Shows: formal agenda as topics, motions
+     as decisions (proposed, accepted, rejected), votes as reactions,
+     quoted text, a recess, a late arrival, an unidentified speaker,
+     inaudible audio, wall-clock datetimes, and a secretary's minutes note. -->
+<transcript
+  xmlns="https://thetechjoy.com/htmt/1.0"
+  version="1.0"
+  id="board-2026-10-07"
+  title="Board of Directors Regular Meeting"
+  date="2026-10-07T18:30:00-05:00"
+  duration="01:32:15"
+  xml:lang="en">
+
+  <meta>
+    <property name="source-system">Example Room Recorder</property>
+    <property name="transcription-method">human-reviewed</property>
+    <property name="organization">Riverside Community Library Foundation</property>
+    <property name="meeting-type">regular</property>
+  </meta>
+
+  <participants>
+    <person id="chair" name="Helen Brooks" role="chair" />
+    <person id="vice" name="Marcus Reed" role="vice-chair" />
+    <person id="treasurer" name="Linda Park" role="treasurer" />
+    <person id="secretary" name="Tom Alvarez" role="secretary" />
+    <person id="d-osei" name="Kwame Osei" role="director" />
+    <person id="d-novak" name="Eva Novak" role="director" />
+    <person id="d-ross" name="Daniel Ross" role="director" />
+    <person id="d-ito" name="Yuki Ito" role="director" />
+    <person id="ed" name="Rachel Green" role="executive director" />
+    <person id="auditor" name="Paul Meyer" role="guest" />
+    <person id="public-1" name="Member of the public" role="public" />
+  </participants>
+
+  <media id="room" type="audio" src="./board-2026-10-07.wav" duration="01:32:15" />
+
+  <body>
+
+    <topic id="call-to-order" name="1. Call to order" start="00:00:00" end="00:03:00">
+
+      <turn id="t1" speaker="chair" start="00:00:12" end="00:00:30"
+            datetime="2026-10-07T18:30:12-05:00">
+        I call this meeting to order at six thirty.
+        <question id="q1">Secretary, do we have a quorum?</question>
+      </turn>
+
+      <turn id="t2" speaker="secretary" start="00:00:32" end="00:00:45">
+        <answer to="q1">
+          <fact>Seven of eight directors are present. We have a quorum.</fact>
+        </answer>
+      </turn>
+
+    </topic>
+
+    <topic id="minutes" name="2. Approval of prior minutes" start="00:03:00" end="00:06:30">
+
+      <turn id="t3" speaker="d-osei" start="00:03:10" end="00:03:18">
+        <decision id="m1" status="proposed"
+                  summary="Approve the September 9 minutes as written">
+          I move to approve the minutes of September ninth as written.
+        </decision>
+      </turn>
+
+      <turn id="t4" speaker="d-novak" start="00:03:19" end="00:03:21">Second.</turn>
+
+      <event type="reaction" speaker="chair" start="00:03:30" end="00:03:45">
+        Voice vote: all in favor, none opposed.
+      </event>
+
+      <turn id="t5" speaker="chair" start="00:03:46" end="00:03:52">
+        <decision id="m1-result" status="accepted" supersedes="m1"
+                  summary="September 9 minutes approved">
+          The minutes are approved.
+        </decision>
+      </turn>
+
+    </topic>
+
+    <event type="join" speaker="d-ito" start="00:05:40"
+           datetime="2026-10-07T18:35:40-05:00" />
+
+    <topic id="finance" name="3. Treasurer's report and audit" start="00:06:30" end="00:38:00">
+
+      <turn id="t6" speaker="treasurer" start="00:06:40" end="00:08:15">
+        <fact source="https://example.org/foundation/finance/2026-q3.pdf">
+          Third-quarter donations were 412,000 dollars, eight percent above
+          budget.
+        </fact>
+        <fact>Operating expenses were on budget.</fact>
+      </turn>
+
+      <turn id="t7" speaker="auditor" start="00:09:00" end="00:11:20">
+        The audit is complete.
+        <quote source="https://example.org/foundation/audit/2026-letter.pdf">
+          The financial statements present fairly, in all material respects,
+          the financial position of the Foundation.
+        </quote>
+        <risk id="r1" severity="medium"
+              summary="Grant revenue recognition needs a written policy">
+          We recommend a written policy for how restricted grants are
+          recognized. Today it depends on one staff member.
+        </risk>
+      </turn>
+
+      <turn id="t8" speaker="d-ross" start="00:11:30" end="00:11:50">
+        <question id="q2">How long would it take to write that policy?</question>
+      </turn>
+
+      <turn id="t9" speaker="ed" start="00:11:52" end="00:12:20">
+        <answer to="q2">
+          About a month. We can bring a draft to the November meeting.
+        </answer>
+        <action id="a1" owner="ed" due="2026-11-04" status="open"
+                summary="Draft a grant revenue recognition policy">
+          I will own the draft.
+        </action>
+      </turn>
+
+      <event type="inaudible" start="00:14:05" end="00:14:12" speaker="d-osei" />
+
+      <turn id="t10" speaker="vice" start="00:15:00" end="00:15:12">
+        <decision id="m2" status="proposed"
+                  summary="Accept the 2026 audit report">
+          I move that we accept the audit report.
+        </decision>
+      </turn>
+
+      <turn id="t11" speaker="treasurer" start="00:15:13" end="00:15:15">Second.</turn>
+
+      <event type="reaction" speaker="chair" start="00:15:20" end="00:15:40">
+        Roll call vote: eight in favor, none opposed.
+      </event>
+
+      <turn id="t12" speaker="chair" start="00:15:41" end="00:15:46">
+        <decision id="m2-result" status="accepted" supersedes="m2"
+                  summary="2026 audit report accepted">
+          The audit report is accepted.
+        </decision>
+      </turn>
+
+    </topic>
+
+    <event type="silence" start="00:38:00" end="00:48:00" duration="00:10:00">
+      Ten-minute recess.
+    </event>
+
+    <topic id="branch-hours" name="4. Extended weekend hours" start="00:48:00" end="01:20:00">
+
+      <turn id="t13" speaker="ed" start="00:48:20" end="00:50:40">
+        Staff propose opening the east branch on Sundays starting in January.
+        <fact>The added cost is about 38,000 dollars a year.</fact>
+      </turn>
+
+      <turn id="t14" speaker="d-novak" start="00:51:00" end="00:51:40">
+        <claim confidence="0.5">
+          Sunday traffic would be strong. Families are asking for it.
+        </claim>
+      </turn>
+
+      <turn id="t15" speaker="d-ross" start="00:52:00" end="00:52:45">
+        <risk id="r2" severity="medium"
+              summary="Sunday hours are not funded beyond one year">
+          We only have one year of funding for this. After that it comes out
+          of reserves.
+        </risk>
+      </turn>
+
+      <turn id="t16" speaker="d-osei" start="00:55:10" end="00:55:25">
+        <decision id="m3" status="proposed"
+                  summary="Approve permanent Sunday hours at the east branch">
+          I move to approve permanent Sunday hours at the east branch.
+        </decision>
+      </turn>
+
+      <turn id="t17" speaker="d-ito" start="00:55:26" end="00:55:28">Second.</turn>
+
+      <event type="crosstalk" start="00:55:30" end="00:55:41" />
+
+      <event type="reaction" speaker="chair" start="00:58:00" end="00:58:30">
+        Roll call vote: three in favor, five opposed.
+      </event>
+
+      <turn id="t18" speaker="chair" start="00:58:31" end="00:58:40">
+        <decision id="m3-result" status="rejected" supersedes="m3"
+                  summary="Permanent Sunday hours not approved">
+          The motion fails.
+        </decision>
+      </turn>
+
+      <turn id="t19" speaker="vice" start="00:59:00" end="00:59:30">
+        <decision id="m4" status="proposed"
+                  summary="Approve a one-year Sunday hours pilot">
+          Then I move a one-year pilot, with a report back to the board in
+          ten months.
+        </decision>
+      </turn>
+
+      <turn id="t20" speaker="d-ross" start="00:59:31" end="00:59:33">Second.</turn>
+
+      <event type="reaction" speaker="chair" start="01:01:00" end="01:01:30">
+        Roll call vote: seven in favor, one opposed.
+      </event>
+
+      <turn id="t21" speaker="chair" start="01:01:31" end="01:01:40">
+        <decision id="m4-result" status="accepted" supersedes="m4"
+                  summary="One-year Sunday hours pilot approved">
+          The pilot is approved.
+        </decision>
+        <action id="a2" owner="ed" due="2027-08-01" status="open"
+                summary="Report on the Sunday pilot to the board">
+          Rachel, please bring the pilot results back by August.
+        </action>
+      </turn>
+
+    </topic>
+
+    <topic id="public-comment" name="5. Public comment" start="01:20:00" end="01:28:00">
+
+      <turn id="t22" speaker="public-1" start="01:20:30" end="01:22:10" confidence="0.82">
+        Thank you for the Sunday pilot. I also want to ask the board to
+        look at the parking near the east branch. It is full most evenings.
+      </turn>
+
+      <turn id="t23" speaker="chair" start="01:22:15" end="01:22:40">
+        Thank you. We will refer that to staff.
+        <action id="a3" owner="secretary" due="2026-10-14" status="open"
+                summary="Refer the east branch parking comment to staff">
+          Tom, please log that for follow-up.
+        </action>
+      </turn>
+
+      <turn id="t24" start="01:23:00" end="01:23:20" confidence="0.4">
+        Speaker not identified: a second comment about late fees.
+      </turn>
+
+    </topic>
+
+    <topic id="adjourn" name="6. Adjournment" start="01:28:00" end="01:32:15">
+
+      <turn id="t25" speaker="chair" start="01:31:50" end="01:32:05"
+            datetime="2026-10-07T20:01:50-05:00">
+        There being no further business, the meeting is adjourned.
+      </turn>
+
+    </topic>
+
+    <note type="minutes" author="secretary">
+      Motions carried: <ref href="#m1-result">minutes</ref>,
+      <ref href="#m2-result">audit report</ref>,
+      <ref href="#m4-result">Sunday pilot</ref>.
+      Motion failed: <ref href="#m3-result">permanent Sunday hours</ref>.
+      Open actions: <ref href="#a1">a1</ref>, <ref href="#a2">a2</ref>,
+      <ref href="#a3">a3</ref>.
+    </note>
+
+  </body>
+</transcript>

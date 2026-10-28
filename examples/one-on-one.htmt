@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A recorded one-on-one between a manager and a direct report.
+     Shows: two declared participants, a single media file, questions and
+     answers, a decision, actions with owners and due dates, a private note. -->
+<transcript
+  xmlns="https://thetechjoy.com/htmt/1.0"
+  version="1.0"
+  id="one-on-one-2026-09-14"
+  title="Weekly One-on-One"
+  date="2026-09-14T14:00:00-05:00"
+  duration="00:24:10"
+  xml:lang="en">
+
+  <meta>
+    <property name="source-system">Example Video Calls</property>
+    <property name="transcription-method">asr</property>
+    <property name="series">weekly-one-on-one</property>
+  </meta>
+
+  <participants>
+    <person id="maria" name="Maria Lopez" role="manager" />
+    <person id="dev" name="Dev Patel" role="engineer" />
+  </participants>
+
+  <media id="call" type="audio" src="./one-on-one-2026-09-14.m4a" duration="00:24:10" />
+
+  <body>
+
+    <topic id="check-in" name="Check-in" start="00:00:00" end="00:03:30">
+
+      <turn id="t1" speaker="maria" start="00:00:04" end="00:00:09.200">
+        <question id="q1">How is the week going so far?</question>
+      </turn>
+
+      <turn id="t2" speaker="dev" start="00:00:10" end="00:00:21.700">
+        <answer to="q1">
+          Busy but good. The search migration is mostly done. I am a little
+          worried about the on-call rotation next week.
+        </answer>
+      </turn>
+
+    </topic>
+
+    <topic id="on-call" name="On-call load" start="00:03:30" end="00:12:45">
+
+      <turn id="t3" speaker="dev" start="00:03:34" end="00:03:52">
+        <fact>I was paged nine times during my last on-call week.</fact>
+        Most of those were the same disk alert.
+      </turn>
+
+      <turn id="t4" speaker="maria" start="00:03:55" end="00:04:10">
+        <question id="q2">Is the alert wrong, or is the disk actually filling up?</question>
+      </turn>
+
+      <turn id="t5" speaker="dev" start="00:04:12" end="00:04:31">
+        <answer to="q2">
+          <claim confidence="0.7">
+            The threshold is too tight. The disk recovers on its own after
+            the nightly cleanup runs.
+          </claim>
+        </answer>
+      </turn>
+
+      <turn id="t6" speaker="maria" start="00:04:40" end="00:05:02">
+        <decision id="d1" status="accepted"
+                  summary="Raise the disk alert threshold before next on-call week">
+          Let's raise the threshold before your next shift and see if the
+          noise drops.
+        </decision>
+        <action id="a1" owner="dev" due="2026-09-18" status="open"
+                summary="Propose a new disk alert threshold">
+          Can you send me a proposed number by Thursday?
+        </action>
+      </turn>
+
+    </topic>
+
+    <topic id="growth" name="Growth and goals" start="00:12:45" end="00:24:10">
+
+      <turn id="t7" speaker="dev" start="00:12:50" end="00:13:15">
+        I would like to lead a project next quarter, even a small one.
+      </turn>
+
+      <turn id="t8" speaker="maria" start="00:13:18" end="00:13:44">
+        That makes sense. The reporting rewrite could be a good fit.
+        <action id="a2" owner="maria" due="2026-09-21" status="open"
+                summary="Share the reporting rewrite brief with Dev">
+          I will send you the brief so you can decide if you want it.
+        </action>
+      </turn>
+
+      <note type="private" author="maria">
+        Follow up on <ref href="#a1">the alert threshold</ref> at the next
+        one-on-one before discussing project ownership.
+      </note>
+
+    </topic>
+
+  </body>
+</transcript>

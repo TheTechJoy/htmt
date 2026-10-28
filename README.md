@@ -10,7 +10,10 @@ htmt/
 ├── htmt-1.0.rnc            normative RELAX NG schema (compact syntax)
 ├── examples/
 │   ├── minimal.htmt        smallest conforming document
-│   └── engineering-standup.htmt   complete example from Section 18
+│   ├── engineering-standup.htmt   complete example from Section 18
+│   ├── one-on-one.htmt     manager and direct report: questions, decisions, actions
+│   ├── team-meeting.htmt   planning meeting with an AI notetaker: join/leave, screen share
+│   └── board-meeting.htmt  many-speaker board meeting: motions, votes, public comment
 ├── tools/
 │   ├── validate.py         reference validator: schema + integrity rules (Section 13.1)
 │   └── build.py            assembles index.html, embedding the schema and examples verbatim

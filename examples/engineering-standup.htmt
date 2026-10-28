@@ -40,7 +40,7 @@
 
       <turn id="t3" speaker="sam" start="00:00:14" end="00:00:18.250">
         <question id="q1">
-          Are all carrier deductions represented in our system?
+          Are all vendor credits represented in our system?
         </question>
       </turn>
 
