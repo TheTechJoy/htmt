@@ -1,0 +1,268 @@
+# HTMT 1.0 — HyperText Markup Transcript
+# RELAX NG (compact syntax) schema — normative, Appendix A of the specification.
+# Released into the public domain under The Unlicense (https://unlicense.org/).
+
+default namespace htmt = "https://thetechjoy.com/htmt/1.0"
+namespace local = ""
+namespace xml = "http://www.w3.org/XML/1998/namespace"
+datatypes xsd = "http://www.w3.org/2001/XMLSchema"
+
+start = transcript
+
+# ---------------------------------------------------------------------------
+# Data types (see Section 6)
+# ---------------------------------------------------------------------------
+
+id-type        = xsd:ID
+idref-type     = xsd:IDREF
+uri-type       = xsd:anyURI
+token-type     = xsd:token { pattern = "[a-z][a-z0-9]*(-[a-z0-9]+)*" }
+clock-type     = xsd:token { pattern = "[0-9]+:[0-5][0-9]:[0-5][0-9](\.[0-9]{1,6})?" }
+datetime-type  = xsd:dateTime
+date-type      = xsd:date | xsd:dateTime
+confidence-type = xsd:decimal { minInclusive = "0" maxInclusive = "1" }
+
+# Attributes every semantic element may carry (see Section 8).
+semantic-attrs =
+  attribute id { id-type }?,
+  attribute summary { text }?
+
+# Attributes any element may carry.
+common-attrs =
+  attribute xml:lang { xsd:language }?,
+  attribute xml:space { "default" | "preserve" }?,
+  foreign-attribute*
+
+# ---------------------------------------------------------------------------
+# Extensibility (see Section 12)
+# ---------------------------------------------------------------------------
+
+foreign-attribute = attribute * - (local:* | xml:* | htmt:*) { text }
+
+foreign-element =
+  element * - htmt:* {
+    (attribute * { text } | text | foreign-element | any-htmt-inline)*
+  }
+
+# Core inline content is permitted inside extension elements so that text
+# remains readable (Principle 4, Graceful degradation).
+any-htmt-inline = ref | semantic
+
+# ---------------------------------------------------------------------------
+# Root (see Section 5.1)
+# ---------------------------------------------------------------------------
+
+transcript =
+  element transcript {
+    attribute version { "1.0" },
+    attribute id { id-type }?,
+    attribute title { text }?,
+    attribute date { date-type }?,
+    attribute duration { clock-type }?,
+    common-attrs,
+    meta?,
+    participants?,
+    media*,
+    body
+  }
+
+# ---------------------------------------------------------------------------
+# Header elements (see Sections 5.2–5.4)
+# ---------------------------------------------------------------------------
+
+meta =
+  element meta {
+    common-attrs,
+    (property | foreign-element)*
+  }
+
+property =
+  element property {
+    attribute name { token-type },
+    common-attrs,
+    text
+  }
+
+participants =
+  element participants {
+    common-attrs,
+    (person | agent | foreign-element)*
+  }
+
+person =
+  element person {
+    attribute id { id-type },
+    attribute name { text }?,
+    attribute role { text }?,
+    attribute href { uri-type }?,
+    common-attrs,
+    foreign-element*
+  }
+
+agent =
+  element agent {
+    attribute id { id-type },
+    attribute name { text }?,
+    attribute model { text }?,
+    attribute provider { text }?,
+    attribute role { text }?,
+    attribute href { uri-type }?,
+    common-attrs,
+    foreign-element*
+  }
+
+media =
+  element media {
+    attribute id { id-type }?,
+    attribute type { "audio" | "video" | "text" | "other" }?,
+    attribute src { uri-type },
+    attribute duration { clock-type }?,
+    attribute offset { clock-type }?,
+    common-attrs,
+    foreign-element*
+  }
+
+# ---------------------------------------------------------------------------
+# Timeline (see Sections 5.5–5.8)
+# ---------------------------------------------------------------------------
+
+body =
+  element body {
+    common-attrs,
+    flow*
+  }
+
+flow = turn | event | topic | note | foreign-element
+
+topic =
+  element topic {
+    attribute id { id-type }?,
+    attribute name { text },
+    attribute start { clock-type }?,
+    attribute end { clock-type }?,
+    common-attrs,
+    flow*
+  }
+
+temporal-attrs =
+  attribute start { clock-type }?,
+  attribute end { clock-type }?,
+  attribute datetime { datetime-type }?,
+  attribute media { idref-type }?
+
+turn =
+  element turn {
+    attribute id { id-type }?,
+    attribute speaker { text }?,
+    attribute confidence { confidence-type }?,
+    temporal-attrs,
+    common-attrs,
+    inline
+  }
+
+event =
+  element event {
+    attribute type { token-type },
+    attribute id { id-type }?,
+    attribute speaker { text }?,
+    attribute duration { clock-type }?,
+    temporal-attrs,
+    common-attrs,
+    inline
+  }
+
+# ---------------------------------------------------------------------------
+# Inline content: utterance text, references, semantic annotations
+# ---------------------------------------------------------------------------
+
+inline = (text | ref | semantic | foreign-element)*
+
+ref =
+  element ref {
+    attribute href { uri-type },
+    attribute type { token-type }?,
+    common-attrs,
+    inline
+  }
+
+# ---------------------------------------------------------------------------
+# Semantic elements (see Section 8)
+# ---------------------------------------------------------------------------
+
+semantic = question | answer | decision | action | claim | fact | risk | note | quote
+
+question =
+  element question {
+    semantic-attrs,
+    common-attrs,
+    inline
+  }
+
+answer =
+  element answer {
+    attribute to { idref-type },
+    semantic-attrs,
+    common-attrs,
+    inline
+  }
+
+decision =
+  element decision {
+    semantic-attrs,
+    attribute status { "proposed" | "accepted" | "rejected" | "superseded" }?,
+    attribute supersedes { idref-type }?,
+    common-attrs,
+    inline
+  }
+
+action =
+  element action {
+    semantic-attrs,
+    attribute owner { text }?,
+    attribute due { date-type }?,
+    attribute status { "open" | "done" | "cancelled" }?,
+    common-attrs,
+    inline
+  }
+
+claim =
+  element claim {
+    semantic-attrs,
+    attribute confidence { confidence-type }?,
+    attribute source { uri-type }?,
+    common-attrs,
+    inline
+  }
+
+fact =
+  element fact {
+    semantic-attrs,
+    attribute source { uri-type }?,
+    common-attrs,
+    inline
+  }
+
+risk =
+  element risk {
+    semantic-attrs,
+    attribute severity { "low" | "medium" | "high" | "critical" }?,
+    common-attrs,
+    inline
+  }
+
+note =
+  element note {
+    semantic-attrs,
+    attribute author { text }?,
+    attribute type { token-type }?,
+    common-attrs,
+    inline
+  }
+
+quote =
+  element quote {
+    semantic-attrs,
+    attribute source { uri-type }?,
+    common-attrs,
+    inline
+  }

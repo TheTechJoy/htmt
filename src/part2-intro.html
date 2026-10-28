@@ -1,0 +1,137 @@
+      <section id="status">
+        <h2>Status of this document</h2>
+        <p>This is the final specification of HTMT 1.0, published by TechJoy. It supersedes the earlier conceptual draft; <a href="#appendix-d">Appendix D</a> lists every substantive change. The format, schema, and examples defined here are stable: documents that conform to this specification will remain conforming under all future 1.x revisions (see <a href="#versioning">Section 17</a>).</p>
+        <p>Errata and proposals are accepted through the specification's public repository. Normative content consists of the body sections and Appendices A–C; Appendices D and E and all examples are informative except where an example is explicitly labelled normative.</p>
+      </section>
+
+      <section id="conventions">
+        <h2>Conventions</h2>
+        <p>The key words <span class="kw">MUST</span>, <span class="kw">MUST NOT</span>, <span class="kw">REQUIRED</span>, <span class="kw">SHALL</span>, <span class="kw">SHALL NOT</span>, <span class="kw">SHOULD</span>, <span class="kw">SHOULD NOT</span>, <span class="kw">RECOMMENDED</span>, <span class="kw">MAY</span>, and <span class="kw">OPTIONAL</span> in this document are to be interpreted as described in BCP 14 [<a href="#ref-rfc2119">RFC 2119</a>] [<a href="#ref-rfc8174">RFC 8174</a>] when, and only when, they appear in all capitals.</p>
+        <p>Element names are written <code>&lt;turn&gt;</code>; attribute names are written <code>speaker</code>. Element and attribute names in this specification belong to the HTMT namespace (<a href="#syntax-namespace">Section 4.2</a>) unless stated otherwise. The terms defined in <a href="#model">Section 3</a> are used with their defined meaning throughout.</p>
+        <p>Three kinds of conformance target are addressed: a <dfn>document</dfn> (an HTMT file or byte stream), a <dfn>processor</dfn> (software that reads HTMT), and a <dfn>producer</dfn> (software that writes HTMT). Requirements are stated against the target they bind.</p>
+      </section>
+
+      <section id="purpose">
+        <h2>1. Purpose and Scope</h2>
+        <p class="lead">HTML describes documents. HTMT describes conversations over time.</p>
+        <p>HTMT is an interchange format for meeting transcripts, support sessions, interviews, podcasts, recorded calls, AI conversations, hearings, collaborative work sessions, video transcripts, and other forms of dialogic or event-driven communication. It preserves the <em>structure</em> and <em>semantics</em> of a conversation in a form that remains readable without specialized software.</p>
+
+        <div class="grid">
+          <div class="card"><h3>Human-readable</h3><p>A valid HTMT file is understandable in a text editor without a parser. Markup is additive: stripping every tag leaves the words that were said.</p></div>
+          <div class="card"><h3>Machine-readable</h3><p>HTMT is well-formed XML with a published schema. Existing XML tooling parses, validates, queries, and transforms it with no HTMT-specific code.</p></div>
+          <div class="card"><h3>Temporal</h3><p>Turns and events carry optional media-relative and absolute timestamps, so a transcript can drive playback, alignment, and chronology.</p></div>
+          <div class="card"><h3>Semantic</h3><p>Inline annotations record the role or consequence of an utterance — question, answer, decision, action, claim, risk — without replacing its literal wording.</p></div>
+        </div>
+
+        <h3 id="scope-in">1.1 In scope</h3>
+        <ul>
+          <li>The document syntax, element vocabulary, attribute semantics, and data types of HTMT 1.0.</li>
+          <li>Rules for identity, cross-reference, and timeline ordering within and between transcripts.</li>
+          <li>The extension mechanism and the compatibility guarantees processors can rely on.</li>
+          <li>Conformance requirements for documents, processors, and producers, and a normative schema.</li>
+        </ul>
+
+        <h3 id="scope-out">1.2 Out of scope (non-goals)</h3>
+        <ul>
+          <li><strong>Rendering.</strong> HTMT defines meaning, not appearance. No styling vocabulary is provided and none is planned for the core.</li>
+          <li><strong>Transport and storage.</strong> HTMT is a file format. Streaming, synchronization, and live-update protocols are left to applications.</li>
+          <li><strong>Speech recognition and diarization.</strong> HTMT records the output of those processes; it does not constrain how they are performed.</li>
+          <li><strong>Authentication and integrity.</strong> HTMT carries claims about speakers, models, and confidence. Verifying them (signatures, provenance chains) is layered on by applications, not built into the format (see <a href="#security">Section 14</a>).</li>
+          <li><strong>A universal transcription schema.</strong> Domain vocabularies (medical, legal, sales, support) belong in extensions (<a href="#extensibility">Section 12</a>), never in the core.</li>
+        </ul>
+      </section>
+
+      <section id="principles">
+        <h2>2. Design Principles</h2>
+        <ol>
+          <li><strong>Conversation-first.</strong> Speaker turns are the primary unit of discourse. Everything else annotates, groups, or times them.</li>
+          <li><strong>Semantics over presentation.</strong> HTMT describes meaning and structure; rendering is implementation-defined.</li>
+          <li><strong>Progressive complexity.</strong> A minimal transcript is a root, a body, and turns. Timestamps, participants, semantics, media, and metadata are optional layers.</li>
+          <li><strong>Graceful degradation.</strong> A processor that understands nothing beyond turns still shows the complete conversation. Unknown elements never hide text.</li>
+          <li><strong>Extensibility without fragmentation.</strong> Domain semantics are added through XML namespaces, so the core stays small and extensions cannot collide.</li>
+          <li><strong>Stable identity.</strong> Turns and semantic objects may carry identifiers that are durable, unique, and addressable by URI fragment from inside or outside the document.</li>
+          <li><strong>Transport independence.</strong> HTMT is a document format, not a protocol.</li>
+          <li><strong>AI-native without being AI-dependent.</strong> Humans, software agents, and model-generated discourse are represented with the same primitives; none is privileged.</li>
+          <li><strong>Boring technology.</strong> HTMT is strictly XML 1.0 so that validators, XPath, XSLT, editors, and security hardening already exist for it.</li>
+        </ol>
+      </section>
+
+      <section id="model">
+        <h2>3. Document Model</h2>
+        <p>An HTMT document is a <dfn>conversation</dfn>: an ordered <dfn>timeline</dfn> of <dfn>turns</dfn> and <dfn>events</dfn>, optionally grouped into <dfn>topics</dfn>, optionally attributed to declared <dfn>participants</dfn>, optionally aligned to <dfn>media</dfn>, and optionally annotated with <dfn>semantic objects</dfn> that give utterances operational meaning.</p>
+
+        <p><span class="badge">HTML</span> Document → Elements → Meaning → Presentation<br />
+        <span class="badge">HTMT</span> Conversation → Turns → Meaning → Timeline</p>
+
+        <h3 id="model-terms">3.1 Terms</h3>
+        <table>
+          <thead><tr><th>Term</th><th>Definition</th></tr></thead>
+          <tbody>
+            <tr><td><dfn>turn</dfn></td><td>One contribution to the conversation by one speaker, represented by a <code>&lt;turn&gt;</code> element. A turn is the primary unit of discourse.</td></tr>
+            <tr><td><dfn>utterance text</dfn></td><td>The concatenation, in document order, of all character data descendant from a <code>&lt;turn&gt;</code>, after whitespace normalization (<a href="#syntax-whitespace">Section 4.6</a>). Semantic and extension elements inside a turn contribute their text to the utterance; they annotate it, they do not replace it.</td></tr>
+            <tr><td><dfn>event</dfn></td><td>A non-speech occurrence on the timeline (silence, laughter, a participant joining, a screen share, a tool call), represented by <code>&lt;event&gt;</code>.</td></tr>
+            <tr><td><dfn>timeline order</dfn></td><td>Document order of <code>&lt;turn&gt;</code> and <code>&lt;event&gt;</code> elements within <code>&lt;body&gt;</code>, descending into <code>&lt;topic&gt;</code> elements. Timeline order is authoritative; timestamps refine it but never reorder it.</td></tr>
+            <tr><td><dfn>participant</dfn></td><td>A person or agent declared in <code>&lt;participants&gt;</code> and referenced by the <code>speaker</code> and <code>owner</code> attributes.</td></tr>
+            <tr><td><dfn>semantic object</dfn></td><td>An instance of a semantic element (<a href="#semantic">Section 8</a>): question, answer, decision, action, claim, fact, risk, note, quote.</td></tr>
+            <tr><td><dfn>identifier</dfn></td><td>The value of an <code>id</code> attribute. Identifiers are unique within a document and addressable as URI fragments.</td></tr>
+            <tr><td><dfn>media time</dfn></td><td>A clock-time offset from the start of the transcript's time base (<a href="#temporal">Section 7</a>).</td></tr>
+          </tbody>
+        </table>
+
+        <h3 id="model-tree">3.2 Structure</h3>
+        <pre><code>transcript
+├── meta?            metadata not expressible as core attributes
+├── participants?    person* | agent*
+├── media*           audio/video/text sources the timeline aligns to
+└── body             the timeline
+    ├── topic*       (nestable) groups of the following, in order
+    ├── turn*        speech; contains utterance text, refs, semantic objects
+    ├── event*       non-speech occurrences
+    └── note*        editorial annotations that are not utterances</code></pre>
+      </section>
+
+      <section id="syntax">
+        <h2>4. Document Syntax</h2>
+
+        <h3 id="syntax-xml">4.1 XML profile</h3>
+        <p>An HTMT document <span class="kw">MUST</span> be a well-formed XML 1.0 document [<a href="#ref-xml">XML</a>] that conforms to Namespaces in XML [<a href="#ref-xmlns">XML-NAMES</a>]. It <span class="kw">MUST</span> be encoded as UTF-8. The XML declaration is <span class="kw">OPTIONAL</span>; when present it <span class="kw">MUST NOT</span> declare any encoding other than UTF-8. A byte order mark <span class="kw">MAY</span> be present and <span class="kw">MUST</span> be ignored.</p>
+        <p>Element and attribute names are case-sensitive. All names defined by this specification are lowercase ASCII; multi-word names use a hyphen (<code>screen-share</code>).</p>
+
+        <h3 id="syntax-namespace">4.2 Namespace and version</h3>
+        <p>The HTMT 1.0 namespace is the IRI <code>https://thetechjoy.com/htmt/1.0</code>. The root element and every core element <span class="kw">MUST</span> be in this namespace; producers <span class="kw">SHOULD</span> declare it as the default namespace on the root. Core attributes are unprefixed and in no namespace.</p>
+        <p>The root element <span class="kw">MUST</span> carry a <code>version</code> attribute whose value is <code>1.0</code>. The namespace identifies the vocabulary; the version identifies the revision of this specification the document claims conformance with. Future 1.x revisions keep the same namespace and increment <code>version</code>; a processor <span class="kw">MUST</span> accept any <code>1.x</code> value it does not recognize and process the document under the 1.0 rules (<a href="#versioning">Section 17</a>).</p>
+
+        <h3 id="syntax-minimal">4.3 Minimum valid document</h3>
+        <pre><code>{{MINIMAL}}</code></pre>
+
+        <h3 id="syntax-recommended">4.4 Recommended document structure</h3>
+        <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;transcript
+  xmlns="https://thetechjoy.com/htmt/1.0"
+  version="1.0"
+  id="standup-2026-08-27"
+  title="Engineering Standup"
+  date="2026-08-27T09:00:00-05:00"
+  duration="00:18:42"
+  xml:lang="en"&gt;
+
+  &lt;meta&gt;…&lt;/meta&gt;
+  &lt;participants&gt;…&lt;/participants&gt;
+  &lt;media … /&gt;
+  &lt;body&gt;…&lt;/body&gt;
+
+&lt;/transcript&gt;</code></pre>
+
+        <h3 id="syntax-forbidden">4.5 Prohibited XML features</h3>
+        <p>An HTMT document <span class="kw">MUST NOT</span> contain a document type declaration (<code>&lt;!DOCTYPE&gt;</code>), internal or external entity declarations, or references to external entities. Only the five predefined entities (<code>&amp;amp;</code> <code>&amp;lt;</code> <code>&amp;gt;</code> <code>&amp;quot;</code> <code>&amp;apos;</code>) and numeric character references <span class="kw">MAY</span> be used. A processor <span class="kw">MUST</span> reject a document containing a DOCTYPE and <span class="kw">MUST</span> configure its XML parser to disable DTD loading, external entity resolution, and network access (<a href="#security-xml">Section 14.1</a>). Processing instructions other than the XML declaration are permitted and <span class="kw">MUST</span> be ignored by processors that do not recognize them. Comments are permitted and carry no meaning.</p>
+
+        <h3 id="syntax-whitespace">4.6 Whitespace</h3>
+        <p>Whitespace in utterance text is <em>insignificant by default</em>, so that authors may indent markup freely. When computing utterance text, a processor <span class="kw">MUST</span> collapse each run of whitespace characters (U+0020, U+0009, U+000A, U+000D) to a single U+0020 and strip leading and trailing whitespace from the turn as a whole, exactly as HTML does for normal flow text. An element whose nearest <code>xml:space</code> ancestor-or-self has the value <code>preserve</code> is exempt: its character data <span class="kw">MUST</span> be preserved verbatim. Whitespace that appears only between child elements of <code>&lt;transcript&gt;</code>, <code>&lt;meta&gt;</code>, <code>&lt;participants&gt;</code>, <code>&lt;body&gt;</code>, and <code>&lt;topic&gt;</code> is ignorable.</p>
+
+        <h3 id="syntax-lang">4.7 Language</h3>
+        <p>The language of utterance text is indicated with the standard <code>xml:lang</code> attribute [<a href="#ref-bcp47">BCP 47</a>], which <span class="kw">MAY</span> appear on any element and inherits in the usual way. Producers <span class="kw">SHOULD</span> set it on the root. A turn in a different language from the transcript <span class="kw">SHOULD</span> carry its own <code>xml:lang</code>.</p>
+
+        <div class="callout">
+          <strong>Normative intent:</strong> a processor <span class="kw">MUST</span> preserve and present the text contained in elements it does not understand, whether they are core elements it chooses not to interpret or extension elements. Unknown markup never causes readable transcript content to disappear.
+        </div>
+      </section>

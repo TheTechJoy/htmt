@@ -1,0 +1,104 @@
+      <section id="appendix-a">
+        <h2>Appendix A. RELAX NG Schema (normative)</h2>
+        <p>The schema is given in RELAX NG compact syntax [<a href="#ref-rnc">RNC</a>] and is distributed as <code>htmt-1.0.rnc</code>. It is the normative definition of content models and attribute lexical types. It does not express the integrity rules of <a href="#conformance-doc">13.1</a> (items 3–7); the reference validator (<code>tools/validate.py</code>) checks both.</p>
+        <pre><code>{{RNC}}</code></pre>
+      </section>
+
+      <section id="appendix-b">
+        <h2>Appendix B. Grammar (normative)</h2>
+        <p>Lexical forms in ABNF [<a href="#ref-rfc5234">RFC 5234</a>]. These are equivalent to the datatype facets in Appendix A; the schema governs if the two are ever found to differ.</p>
+        <pre><code>clock-time   = hours ":" minutes ":" seconds [ "." fraction ]
+hours        = 1*DIGIT                 ; unbounded, zero-padding optional
+minutes      = %x30-35 DIGIT           ; 00-59
+seconds      = %x30-35 DIGIT           ; 00-59
+fraction     = 1*6DIGIT
+
+token        = LALPHA *( LALPHA / DIGIT ) *( "-" 1*( LALPHA / DIGIT ) )
+LALPHA       = %x61-7A                 ; a-z
+
+id           = NCName                  ; [XML-NAMES] section 3
+idref        = NCName
+
+confidence   = "0" [ "." 1*DIGIT ] / "1" [ "." 1*"0" ] / "." 1*DIGIT
+
+datetime     = date-time               ; [RFC 3339] section 5.6, offset SHOULD be present
+date         = full-date / date-time   ; [RFC 3339] section 5.6
+
+uri          = IRI-reference           ; [RFC 3987]
+internal-ref = "#" id                  ; fragment-only URI addressing a local id</code></pre>
+      </section>
+
+      <section id="appendix-c">
+        <h2>Appendix C. Well-Known Event Types (normative)</h2>
+        <p>Producers <span class="kw">SHOULD</span> use these tokens for the occurrences they describe and <span class="kw">MAY</span> use any other token. Processors <span class="kw">MUST</span> tolerate unknown types. New well-known types may be added in minor revisions.</p>
+        <table>
+          <thead><tr><th>Type</th><th>Meaning</th><th>Typical attributes / content</th></tr></thead>
+          <tbody>
+            <tr><td><code>silence</code></td><td>No speech for a notable interval.</td><td><code>start</code>, <code>duration</code></td></tr>
+            <tr><td><code>inaudible</code></td><td>Speech occurred but could not be transcribed.</td><td><code>start</code>, <code>end</code>, <code>speaker</code></td></tr>
+            <tr><td><code>crosstalk</code></td><td>Multiple speakers overlapping such that attribution failed.</td><td><code>start</code>, <code>end</code></td></tr>
+            <tr><td><code>laughter</code>, <code>applause</code>, <code>music</code></td><td>Non-speech audio.</td><td><code>start</code>, optional <code>speaker</code></td></tr>
+            <tr><td><code>join</code>, <code>leave</code></td><td>A participant entered or left the conversation.</td><td><code>speaker</code> <span class="req">required</span>, <code>start</code> or <code>datetime</code></td></tr>
+            <tr><td><code>recording-start</code>, <code>recording-stop</code></td><td>Recording boundaries, where the conversation extends beyond the recording.</td><td><code>start</code>, <code>media</code></td></tr>
+            <tr><td><code>screen-share</code></td><td>Visual content was shared.</td><td><code>speaker</code>, <code>start</code>, <code>end</code>; content describes what was shown, optionally with <code>&lt;ref&gt;</code></td></tr>
+            <tr><td><code>file-shared</code></td><td>A file or link was posted into the conversation.</td><td><code>speaker</code>; content <span class="kw">SHOULD</span> contain a <code>&lt;ref&gt;</code></td></tr>
+            <tr><td><code>reaction</code></td><td>A lightweight non-verbal response (emoji, thumbs-up, hand raise).</td><td><code>speaker</code>; content is the reaction</td></tr>
+            <tr><td><code>tool-call</code>, <code>tool-result</code></td><td>An agent invoked a tool / received its result (<a href="#ai">Section 11</a>).</td><td><code>speaker</code> (the agent); payload in an extension namespace</td></tr>
+            <tr><td><code>system</code></td><td>A message injected by the hosting platform rather than any participant.</td><td>content is the message text</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="appendix-d">
+        <h2>Appendix D. Changes from the Conceptual Draft (informative)</h2>
+        <p>The conceptual draft described intent but left syntax under-specified. This final specification resolves each open point. Documents written to the draft's examples need the following adjustments.</p>
+        <table>
+          <thead><tr><th>Area</th><th>Draft</th><th>Final 1.0</th><th>Rationale</th></tr></thead>
+          <tbody>
+            <tr><td>Syntax</td><td>"XML-like"</td><td>Strict XML 1.0 + Namespaces (<a href="#syntax-xml">4.1</a>)</td><td>Removes the need for a bespoke parser; existing validators, XPath, XSLT, editors, and security hardening apply immediately.</td></tr>
+            <tr><td>Version marker</td><td><code>&lt;!HTMT 1.0&gt;</code> prologue</td><td><code>version="1.0"</code> attribute on the root (<a href="#syntax-namespace">4.2</a>)</td><td>The prologue is not well-formed XML.</td></tr>
+            <tr><td>Namespace</td><td>None</td><td><code>https://thetechjoy.com/htmt/1.0</code>, required on the root</td><td>Unambiguous identification of the vocabulary; prerequisite for namespace-based extensions.</td></tr>
+            <tr><td><code>&lt;body&gt;</code></td><td>Recommended</td><td>Required, exactly one (<a href="#el-body">5.5</a>)</td><td>One content model for the root; no special case for turns directly under <code>&lt;transcript&gt;</code>.</td></tr>
+            <tr><td>Extensions</td><td><code>x-prefix:name</code> convention</td><td>Real XML namespaces (<a href="#extensibility">Section 12</a>)</td><td>The draft's prefixes required an <code>xmlns</code> declaration to be well-formed anyway; namespaces give collision-free, author-controlled vocabularies.</td></tr>
+            <tr><td>Cross-references</td><td><code>&lt;ref transcript="…" turn="…"&gt;</code></td><td><code>href</code> with fragment identifiers: <code>&lt;ref href="billing.htmt#t184"&gt;</code> (<a href="#hypertext">Section 9</a>)</td><td>One mechanism for internal, cross-transcript, and external links; identifiers become addressable by any URI-aware tool.</td></tr>
+            <tr><td>Time values</td><td><code>HH:MM:SS</code>, <code>3.2s</code>, ISO 8601 all allowed in <code>start</code></td><td>Single clock-time grammar for <code>start</code>/<code>end</code>/<code>duration</code>/<code>offset</code>; absolute time moved to the separate <code>datetime</code> attribute (<a href="#temporal">Section 7</a>)</td><td>A processor must never have to guess which kind of time a value is.</td></tr>
+            <tr><td>Language</td><td><code>lang</code> attribute</td><td><code>xml:lang</code> (<a href="#syntax-lang">4.7</a>)</td><td>Standard, inheritable, understood by all XML tooling.</td></tr>
+            <tr><td>Whitespace</td><td>Unspecified</td><td>HTML-style collapsing; <code>xml:space="preserve"</code> opt-out (<a href="#syntax-whitespace">4.6</a>)</td><td>Indented markup must not leak into utterance text.</td></tr>
+            <tr><td>Semantic element content</td><td>Examples contained paraphrases ("Deploy Friday.")</td><td>Content is the spoken words; paraphrase goes in the new <code>summary</code> attribute (<a href="#semantic">Section 8</a>)</td><td>Keeps "annotation, not replacement" true in practice.</td></tr>
+            <tr><td>Speaker resolution</td><td>"should resolve … may permit literal names"</td><td>Deterministic: ids when <code>&lt;participants&gt;</code> is present, labels otherwise (<a href="#el-participants">5.3</a>)</td><td>Removes an ambiguity that would have caused interoperability failures.</td></tr>
+            <tr><td><code>&lt;meta&gt;</code></td><td>Content undefined</td><td><code>&lt;property name&gt;</code> children plus extension elements (<a href="#el-meta">5.2</a>)</td><td>Gives a minimal, predictable shape.</td></tr>
+            <tr><td><code>&lt;media&gt;</code></td><td>Single, implicit</td><td>Repeatable with <code>offset</code>; turns select via <code>media</code> (<a href="#el-media">5.4</a>)</td><td>Multi-recording meetings are common.</td></tr>
+            <tr><td>Enumerations</td><td>Unspecified</td><td>Closed lists for <code>decision/@status</code>, <code>action/@status</code>, <code>risk/@severity</code>, <code>media/@type</code>; added <code>decision/@supersedes</code>, <code>turn/@confidence</code></td><td>Interoperable values; explicit decision lifecycle.</td></tr>
+            <tr><td>Media type</td><td><code>text/htmt</code></td><td><code>application/htmt+xml</code> (<a href="#mediatype">Section 15</a>)</td><td>RFC 7303 convention for XML-based types.</td></tr>
+            <tr><td>Conformance</td><td>Single list of "should" items</td><td>Document, processor (Basic/Full), and producer conformance with BCP 14 keywords; normative schema; reference validator (<a href="#conformance">Section 13</a>)</td><td>Testable claims.</td></tr>
+            <tr><td>Security</td><td>General guidance</td><td>Mandatory XML parser hardening; DOCTYPE forbidden; escaping and scheme rules (<a href="#security">Section 14</a>)</td><td>XML's known attack classes must be closed by the profile, not left to implementers.</td></tr>
+            <tr><td>Module model</td><td>Section 16 proposed optional modules</td><td>Folded into the Basic/Full processor classes; the document format has no modules</td><td>Modules as a document-side concept add negotiation without benefit when every feature is already optional.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="appendix-e">
+        <h2>Appendix E. References</h2>
+        <ul>
+          <li id="ref-rfc2119">[RFC 2119] Bradner, S., "Key words for use in RFCs to Indicate Requirement Levels", BCP 14, RFC 2119, March 1997.</li>
+          <li id="ref-rfc8174">[RFC 8174] Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words", BCP 14, RFC 8174, May 2017.</li>
+          <li id="ref-xml">[XML] Bray, T., et al., "Extensible Markup Language (XML) 1.0 (Fifth Edition)", W3C Recommendation, 26 November 2008.</li>
+          <li id="ref-xmlns">[XML-NAMES] Bray, T., et al., "Namespaces in XML 1.0 (Third Edition)", W3C Recommendation, 8 December 2009.</li>
+          <li id="ref-rnc">[RNC] Clark, J., "RELAX NG Compact Syntax", OASIS Committee Specification, 21 November 2002; ISO/IEC 19757-2:2008.</li>
+          <li id="ref-rfc3339">[RFC 3339] Klyne, G. and C. Newman, "Date and Time on the Internet: Timestamps", RFC 3339, July 2002.</li>
+          <li id="ref-rfc3987">[RFC 3987] Duerst, M. and M. Suignard, "Internationalized Resource Identifiers (IRIs)", RFC 3987, January 2005.</li>
+          <li id="ref-rfc5234">[RFC 5234] Crocker, D. and P. Overell, "Augmented BNF for Syntax Specifications: ABNF", STD 68, RFC 5234, January 2008.</li>
+          <li id="ref-rfc7303">[RFC 7303] Thompson, H. and C. Lilley, "XML Media Types", RFC 7303, July 2014.</li>
+          <li id="ref-bcp47">[BCP 47] Phillips, A. and M. Davis, "Tags for Identifying Languages", BCP 47, RFC 5646, September 2009.</li>
+          <li id="ref-xsd">[XSD-2] Biron, P. and A. Malhotra, "XML Schema Part 2: Datatypes Second Edition", W3C Recommendation, 28 October 2004 (datatype library used by Appendix A).</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+
+  <footer class="footer">
+    <p><strong>HTMT 1.0 — HyperText Markup Transcript</strong> · Final · 2026-10-28</p>
+    <p>This specification is released into the public domain under <a href="https://unlicense.org/">The Unlicense</a>. The schema, validator, and examples are released under the same terms. TechJoy asserts no patent or trademark claim over the format; anyone may implement it.</p>
+  </footer>
+</body>
+</html>

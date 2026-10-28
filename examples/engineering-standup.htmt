@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<transcript
+  xmlns="https://thetechjoy.com/htmt/1.0"
+  version="1.0"
+  id="engineering-standup-2026-08-27"
+  title="Engineering Standup"
+  date="2026-08-27T09:00:00-05:00"
+  duration="00:18:42"
+  xml:lang="en">
+
+  <meta>
+    <property name="source-system">Example Meetings</property>
+    <property name="transcription-method">asr</property>
+  </meta>
+
+  <participants>
+    <person id="logan" name="Logan Schmidt" role="lead" />
+    <person id="priya" name="Priya Nair" role="engineer" />
+    <person id="sam" name="Sam Okafor" role="product" />
+    <agent id="notetaker" name="Notetaker" model="example-model-2" provider="Example AI" />
+  </participants>
+
+  <media
+    id="recording"
+    type="audio"
+    src="./engineering-standup.mp3"
+    duration="00:18:42" />
+
+  <body>
+
+    <topic id="inventory" name="Inventory" start="00:00:00" end="00:02:10">
+
+      <turn id="t1" speaker="logan" start="00:00:03" end="00:00:06.400">
+        Morning everyone. Let's start with inventory.
+      </turn>
+
+      <turn id="t2" speaker="priya" start="00:00:08" end="00:00:11.100">
+        The reconciliation job completed overnight.
+      </turn>
+
+      <turn id="t3" speaker="sam" start="00:00:14" end="00:00:18.250">
+        <question id="q1">
+          Are all carrier deductions represented in our system?
+        </question>
+      </turn>
+
+      <turn id="t4" speaker="priya" start="00:00:20" end="00:00:24">
+        <answer to="q1">
+          Yes, for the pathways we've currently validated.
+        </answer>
+      </turn>
+
+      <turn id="t5" speaker="logan" start="00:01:02" end="00:01:09.800">
+        <action id="a1" owner="logan" due="2026-08-27" status="open"
+                summary="Validate the billing export">
+          We should verify the export before billing runs.
+        </action>
+      </turn>
+
+      <turn id="t6" speaker="sam" start="00:01:18" end="00:01:19.500">
+        <decision id="d1" status="accepted"
+                  summary="Validate the export before the billing run">
+          Agreed.
+        </decision>
+      </turn>
+
+      <turn id="t7" speaker="notetaker">
+        <note type="summary" author="notetaker">
+          Inventory reconciliation is green; export validation
+          (<ref href="#a1">a1</ref>) is owned by Logan before billing.
+        </note>
+      </turn>
+
+    </topic>
+
+    <event type="screen-share" start="00:02:11" end="00:04:40" speaker="priya">
+      <ref href="https://example.com/inventory" type="dashboard">
+        Inventory Dashboard
+      </ref>
+    </event>
+
+    <topic id="billing" name="Billing" start="00:02:11" end="00:18:40">
+
+      <turn id="t8" speaker="sam" start="00:02:15">
+        Last week we said billing would run Friday.
+        <ref href="standup-2026-08-20.htmt#d3">Last week's decision</ref>
+      </turn>
+
+      <turn id="t9" speaker="priya" start="00:02:31" confidence="0.91">
+        <claim confidence="0.8" source="https://example.com/runbooks/billing">
+          Timing differences between the two systems are the most likely
+          cause of the drift.
+        </claim>
+        <risk id="r1" severity="medium">
+          If the export is late, billing will run on stale counts.
+        </risk>
+      </turn>
+
+      <event type="laughter" start="00:02:48" />
+
+    </topic>
+
+  </body>
+</transcript>

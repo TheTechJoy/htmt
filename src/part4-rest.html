@@ -1,0 +1,261 @@
+      <section id="hypertext">
+        <h2>9. HyperText References</h2>
+        <p>The "HyperText" in HTMT is a design commitment: a transcript can link to resources, identifiers, other transcripts, and exact locations inside transcripts, using ordinary URIs.</p>
+
+        <pre><code>&lt;ref href="https://example.com/spec"&gt;Inventory Specification&lt;/ref&gt;
+
+&lt;ref href="https://tracker.example.com/browse/OPS-2309" type="ticket"&gt;OPS-2309&lt;/ref&gt;
+
+&lt;ref href="billing-2026-08-20.htmt#t184"&gt;Earlier billing discussion&lt;/ref&gt;
+
+&lt;ref href="#d4"&gt;the Friday deployment decision&lt;/ref&gt;</code></pre>
+
+        <table class="attr-table">
+          <thead><tr><th>Attribute</th><th>Type</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>href</code> <span class="req">required</span></td><td>URI</td><td>The target. Relative references resolve against the document base URI.</td></tr>
+            <tr><td><code>type</code></td><td>token</td><td>Optional hint about the kind of target (<code>ticket</code>, <code>document</code>, <code>transcript</code>, <code>dashboard</code>, <code>person</code>). Not registered; processors <span class="kw">MUST</span> tolerate unknown values.</td></tr>
+          </tbody>
+        </table>
+
+        <h3 id="hypertext-fragments">9.1 Fragment identifiers</h3>
+        <p>The fragment identifier of a URI that resolves to an HTMT document <span class="kw">MUST</span> be interpreted as the value of an <code>id</code> attribute in that document. <code>#t184</code> therefore addresses the turn, topic, event, media, or semantic object whose <code>id</code> is <code>t184</code>. This is the only fragment syntax defined for <code>application/htmt+xml</code>; processors <span class="kw">MUST</span> treat an unresolvable fragment as a reference to the whole document.</p>
+        <p>A fragment-only <code>href</code> (<code>#d4</code>) is an <dfn>internal reference</dfn> and <span class="kw">MUST</span> resolve within the document (<a href="#conformance-doc">13.1</a>). A reference to another transcript is an ordinary relative or absolute URI with an optional fragment; no dedicated attributes are needed and none are defined.</p>
+
+        <h3 id="hypertext-schemes">9.2 URI schemes</h3>
+        <p>Any scheme <span class="kw">MAY</span> appear in <code>href</code>, <code>src</code>, and <code>source</code>, including application-specific schemes. Producers <span class="kw">SHOULD</span> prefer <code>https</code> URLs to proprietary schemes so that references stay resolvable outside the producing application. Processors <span class="kw">MUST</span> treat all references as untrusted (<a href="#security">Section 14</a>).</p>
+      </section>
+
+      <section id="events">
+        <h2>10. Events</h2>
+        <p>HTMT models more than spoken language. Events preserve contextual occurrences on the timeline: silence, laughter, participants joining and leaving, screen sharing, shared files, recording boundaries, and — in agent conversations — tool invocations.</p>
+
+        <pre><code>&lt;event type="silence" start="00:02:14" duration="00:00:03.200" /&gt;
+
+&lt;event type="laughter" start="00:03:02" /&gt;
+
+&lt;event type="join" datetime="2026-08-27T09:02:10-05:00" speaker="sam" /&gt;
+
+&lt;event type="screen-share" start="00:08:11" end="00:09:40" speaker="priya"&gt;
+  Inventory Dashboard
+&lt;/event&gt;
+
+&lt;event type="file-shared" start="00:10:02" speaker="logan"&gt;
+  &lt;ref href="./inventory-report.xlsx"&gt;Inventory Report&lt;/ref&gt;
+&lt;/event&gt;</code></pre>
+
+        <table class="attr-table">
+          <thead><tr><th>Attribute</th><th>Type</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>type</code> <span class="req">required</span></td><td>token</td><td>Kind of event. Well-known values are listed in <a href="#appendix-c">Appendix C</a>; any other token <span class="kw">MAY</span> be used and <span class="kw">MUST</span> be tolerated.</td></tr>
+            <tr><td><code>id</code></td><td>id</td><td>Addressable identifier.</td></tr>
+            <tr><td><code>speaker</code></td><td>participant id or label</td><td>Participant the event is attributed to (who joined, who shared, which agent called a tool).</td></tr>
+            <tr><td><code>start</code>, <code>end</code>, <code>duration</code></td><td>clock-time</td><td>Extent on the timeline. <code>duration</code> is a convenience equivalent to <code>end − start</code>; if both are present they <span class="kw">MUST</span> agree.</td></tr>
+            <tr><td><code>datetime</code></td><td>datetime</td><td>Absolute time of the event.</td></tr>
+            <tr><td><code>media</code></td><td>media id</td><td>Media the temporal attributes refer to.</td></tr>
+          </tbody>
+        </table>
+        <p>Event content is inline content describing the event. It is <em>not</em> utterance text: an event's text is never attributed to a speaker as something they said. An event <span class="kw">MAY</span> be empty.</p>
+      </section>
+
+      <section id="ai">
+        <h2>11. Agents and AI Conversations</h2>
+        <p>HTMT treats software agents as first-class participants rather than forcing them into a human speaker model. An agent is declared with <code>&lt;agent&gt;</code>, speaks through ordinary <code>&lt;turn&gt;</code> elements, and acts through <code>&lt;event&gt;</code> elements.</p>
+
+        <pre><code>&lt;transcript xmlns="https://thetechjoy.com/htmt/1.0" version="1.0"
+            xmlns:tool="https://example.com/ns/tool-calls"&gt;
+  &lt;participants&gt;
+    &lt;person id="user" name="Logan" /&gt;
+    &lt;agent id="assistant" name="Assistant" model="example-model-2" provider="Example AI" /&gt;
+  &lt;/participants&gt;
+
+  &lt;body&gt;
+    &lt;turn id="t1" speaker="user" datetime="2026-10-28T14:02:11-05:00"&gt;
+      Explain why our inventory numbers drift.
+    &lt;/turn&gt;
+
+    &lt;event type="tool-call" speaker="assistant" datetime="2026-10-28T14:02:12-05:00"&gt;
+      &lt;tool:call name="query_inventory" args='{"window":"7d"}' /&gt;
+    &lt;/event&gt;
+
+    &lt;event type="tool-result" speaker="assistant" datetime="2026-10-28T14:02:14-05:00"&gt;
+      &lt;tool:result name="query_inventory" status="ok" /&gt;
+    &lt;/event&gt;
+
+    &lt;turn id="t2" speaker="assistant" datetime="2026-10-28T14:02:15-05:00"&gt;
+      There are several possible causes.
+      &lt;claim confidence="0.82"&gt;
+        Timing differences between systems are the most likely contributor to the observed drift.
+      &lt;/claim&gt;
+    &lt;/turn&gt;
+  &lt;/body&gt;
+&lt;/transcript&gt;</code></pre>
+
+        <ul>
+          <li>Model, provider, tool, runtime, and generation metadata <span class="kw">MAY</span> be represented; none of it is required for portability. A processor <span class="kw">MUST</span> render an agent conversation correctly with every <code>&lt;agent&gt;</code> attribute except <code>id</code> absent.</li>
+          <li>Tool invocations and results are events of type <code>tool-call</code> and <code>tool-result</code>. Their payloads are application-specific and <span class="kw">SHOULD</span> be carried in an extension namespace, as above, so the core does not have to standardize tool schemas.</li>
+          <li>Hidden reasoning, system prompts, and other content not shown to a human participant <span class="kw">SHOULD NOT</span> be emitted as turns. If retained, it <span class="kw">SHOULD</span> be an extension element or an <code>&lt;event&gt;</code>, so that a basic processor presenting "what was said" does not misattribute it.</li>
+          <li>Statements by an agent about its own identity, model, or confidence are claims, not verified facts (<a href="#security-trust">14.3</a>).</li>
+        </ul>
+      </section>
+
+      <section id="extensibility">
+        <h2>12. Extensibility</h2>
+        <p>The HTMT core is deliberately small and this specification does not grow it for domain needs. Domain vocabularies are introduced as elements and attributes in a namespace other than the HTMT namespace, using standard XML namespace declarations.</p>
+
+        <pre><code>&lt;transcript xmlns="https://thetechjoy.com/htmt/1.0" version="1.0"
+            xmlns:sup="https://support.example.com/ns/htmt"&gt;
+  &lt;meta&gt;
+    &lt;sup:ticket id="T-48213" priority="p2" /&gt;
+  &lt;/meta&gt;
+  &lt;body&gt;
+    &lt;turn speaker="customer" sup:sentiment="negative"&gt;
+      The &lt;sup:product sku="A1-200"&gt;A1 scanner&lt;/sup:product&gt; stopped syncing yesterday.
+    &lt;/turn&gt;
+  &lt;/body&gt;
+&lt;/transcript&gt;</code></pre>
+
+        <h3 id="ext-where">12.1 Where extensions may appear</h3>
+        <ul>
+          <li>Extension <em>attributes</em> <span class="kw">MAY</span> appear on any HTMT element.</li>
+          <li>Extension <em>elements</em> <span class="kw">MAY</span> appear as children of <code>&lt;meta&gt;</code>, <code>&lt;participants&gt;</code>, <code>&lt;person&gt;</code>, <code>&lt;agent&gt;</code>, <code>&lt;media&gt;</code>, <code>&lt;body&gt;</code>, <code>&lt;topic&gt;</code>, and anywhere inline content is allowed (inside turns, events, refs, and semantic elements).</li>
+          <li>Extension elements <span class="kw">MAY</span> contain HTMT <code>&lt;ref&gt;</code> and semantic elements, so that text inside an extension keeps its hypertext and semantic affordances.</li>
+          <li>Extension elements <span class="kw">MUST NOT</span> appear as direct children of <code>&lt;transcript&gt;</code>; put document-level extension data in <code>&lt;meta&gt;</code>.</li>
+        </ul>
+
+        <h3 id="ext-rules">12.2 Requirements on extensions</h3>
+        <ul>
+          <li>Extension names <span class="kw">MUST</span> be in a namespace whose IRI is controlled by the extension's author. The <code>x-</code> prefix convention of the conceptual draft is withdrawn; unprefixed element names in the HTMT namespace are reserved for this specification and its revisions.</li>
+          <li>An extension <span class="kw">MUST NOT</span> redefine the meaning of a core element or attribute, and <span class="kw">MUST NOT</span> require a processor to understand it in order to recover the utterance text.</li>
+          <li>Text inside an extension element that is inline within a turn is utterance text. An extension that needs to carry non-spoken text inside a turn <span class="kw">MUST</span> put it in attributes, not character data.</li>
+          <li>Extension authors <span class="kw">SHOULD</span> publish a schema and <span class="kw">SHOULD</span> document which extension elements may be stripped without loss of the conversation.</li>
+        </ul>
+
+        <h3 id="ext-processing">12.3 Processing unknown content</h3>
+        <p>A processor <span class="kw">MUST</span> accept any extension element or attribute, in any permitted position, without error. It <span class="kw">MUST</span> preserve the character data of unknown inline elements as utterance text, <span class="kw">MAY</span> ignore the element itself, and <span class="kw">SHOULD</span> preserve unknown markup on round-trip when it rewrites a document.</p>
+      </section>
+
+      <section id="conformance">
+        <h2>13. Conformance</h2>
+
+        <h3 id="conformance-doc">13.1 Conforming documents</h3>
+        <p>A document conforms to HTMT 1.0 if and only if all of the following hold:</p>
+        <ol>
+          <li>It is a well-formed XML 1.0 document encoded as UTF-8, with no DOCTYPE and no entity declarations (<a href="#syntax-xml">4.1</a>, <a href="#syntax-forbidden">4.5</a>).</li>
+          <li>Its root is <code>&lt;transcript&gt;</code> in the HTMT namespace with <code>version="1.0"</code>, and it is valid against the schema in <a href="#appendix-a">Appendix A</a>.</li>
+          <li>Every <code>id</code> value is unique within the document.</li>
+          <li>Every <code>to</code>, <code>supersedes</code>, and <code>media</code> attribute, and every fragment-only <code>href</code> or <code>source</code>, resolves to an element in the document.</li>
+          <li>If <code>&lt;participants&gt;</code> is present, every <code>speaker</code>, <code>owner</code>, and <code>author</code> value equals a declared participant <code>id</code>.</li>
+          <li>Every <code>end</code> is accompanied by a <code>start</code> no later than it; every <code>duration</code> that accompanies <code>start</code> and <code>end</code> equals their difference.</li>
+          <li>Every <code>&lt;answer&gt;</code>'s <code>to</code> targets a <code>&lt;question&gt;</code>, and every <code>supersedes</code> targets a <code>&lt;decision&gt;</code>.</li>
+        </ol>
+        <p>Items 1–2 are mechanically checkable with any XML parser and RELAX NG validator; items 3–7 are the <dfn>integrity rules</dfn> and require a small amount of application logic. The reference validator published with this specification checks all seven.</p>
+
+        <h3 id="conformance-proc">13.2 Conforming processors</h3>
+        <p>Two processor classes are defined. A product <span class="kw">MUST</span> state which class it claims.</p>
+        <table>
+          <thead><tr><th>Requirement</th><th>Basic</th><th>Full</th></tr></thead>
+          <tbody>
+            <tr><td>Parse with DTDs, external entities, and network access disabled; reject documents with a DOCTYPE</td><td class="req">MUST</td><td class="req">MUST</td></tr>
+            <tr><td>Present every turn's speaker and utterance text in timeline order</td><td class="req">MUST</td><td class="req">MUST</td></tr>
+            <tr><td>Preserve the text of unknown core and extension elements</td><td class="req">MUST</td><td class="req">MUST</td></tr>
+            <tr><td>Accept any <code>version="1.x"</code></td><td class="req">MUST</td><td class="req">MUST</td></tr>
+            <tr><td>Apply whitespace normalization and <code>xml:space</code></td><td class="req">MUST</td><td class="req">MUST</td></tr>
+            <tr><td>Resolve participants to display names</td><td class="opt">SHOULD</td><td class="req">MUST</td></tr>
+            <tr><td>Validate against the schema and report integrity-rule violations</td><td class="opt">MAY</td><td class="req">MUST</td></tr>
+            <tr><td>Resolve internal references and fragment identifiers</td><td class="opt">MAY</td><td class="req">MUST</td></tr>
+            <tr><td>Expose semantic objects (questions, answers, decisions, actions, claims, facts, risks, notes, quotes) with their attributes</td><td class="opt">MAY</td><td class="req">MUST</td></tr>
+            <tr><td>Expose events and topics</td><td class="opt">MAY</td><td class="req">MUST</td></tr>
+            <tr><td>Seek associated media using the temporal model, including <code>offset</code> and multiple media</td><td class="opt">MAY</td><td class="opt">SHOULD</td></tr>
+            <tr><td>Escape all text before inserting it into HTML or another executable context</td><td class="req">MUST</td><td class="req">MUST</td></tr>
+          </tbody>
+        </table>
+        <p>A processor <span class="kw">MAY</span> refuse a non-conforming document, or <span class="kw">MAY</span> process it in a best-effort manner; if it does the latter it <span class="kw">SHOULD</span> report the violations it detected. A processor <span class="kw">MUST NOT</span> silently drop turns.</p>
+
+        <h3 id="conformance-prod">13.3 Conforming producers</h3>
+        <p>A producer <span class="kw">MUST</span> emit only conforming documents. It <span class="kw">SHOULD</span> declare participants, assign <code>id</code>s to turns, set <code>xml:lang</code>, and emit <code>transcript/@date</code> as a datetime with offset. It <span class="kw">MUST NOT</span> emit a <code>confidence</code> it did not measure or estimate, and <span class="kw">MUST NOT</span> place non-spoken words inside a turn's character data. A producer that edits an existing document <span class="kw">SHOULD</span> preserve identifiers and unknown markup.</p>
+
+        <div class="callout">
+          <strong>Compatibility rule:</strong> semantic richness is strictly additive. A document that uses every feature of this specification remains fully useful to a Basic processor.
+        </div>
+      </section>
+
+      <section id="security">
+        <h2>14. Security and Privacy Considerations</h2>
+        <p>Transcripts routinely contain sensitive personal, organizational, legal, or operational information, and they are frequently produced by automated systems whose output is unverified. The format does not make its content trustworthy; processors and producers must.</p>
+
+        <h3 id="security-xml">14.1 XML parsing</h3>
+        <p>HTMT inherits XML's attack surface and closes it by profile. Processors <span class="kw">MUST</span> disable DTD processing, internal and external entity expansion, external parameter entities, XInclude, and network access in their XML parser, and <span class="kw">MUST</span> reject documents containing a DOCTYPE. This eliminates XXE, entity-expansion denial of service ("billion laughs"), and SSRF through entity resolution. Processors <span class="kw">SHOULD</span> enforce size and nesting limits appropriate to their environment.</p>
+
+        <h3 id="security-refs">14.2 References and media</h3>
+        <ul>
+          <li>All <code>href</code>, <code>src</code>, and <code>source</code> values are untrusted input. Processors <span class="kw">MUST NOT</span> automatically fetch, execute, or open them without user intent, and <span class="kw">SHOULD</span> restrict automatic resolution to an allow-list of schemes (normally <code>https</code> and same-origin relative references).</li>
+          <li>Application-specific URI schemes <span class="kw">MUST NOT</span> be dispatched to the operating system by default.</li>
+          <li>Processors that render transcripts as HTML <span class="kw">MUST</span> escape all character data and attribute values, including those from extension elements, and <span class="kw">MUST NOT</span> emit <code>href</code> values of <code>javascript:</code>, <code>data:</code>, or other executable schemes as live links.</li>
+        </ul>
+
+        <h3 id="security-trust">14.3 Trust in metadata</h3>
+        <p>Speaker identity, agent model and provider, authorship, timestamps, confidence values, and every semantic annotation are <em>claims made by the producer</em>. A processor <span class="kw">MUST NOT</span> present them as verified unless it has verified them by means outside this specification (for example a detached signature over the document, or provenance metadata in an extension namespace). In particular, an <code>&lt;agent&gt;</code> attribution does not establish that a given model produced a turn, and a human <code>&lt;person&gt;</code> attribution does not establish that the person said it.</p>
+
+        <h3 id="security-privacy">14.4 Privacy and redaction</h3>
+        <ul>
+          <li>Producers <span class="kw">SHOULD</span> minimize personal data: participant <code>href</code>s, <code>meta</code> properties, and extension payloads should not carry identifiers or attributes the use case does not need.</li>
+          <li>The format is designed so that redaction tools can remove, independently of one another: utterance text, participant identities (replace <code>name</code> and <code>href</code>, keep <code>id</code>), temporal information, references, media associations, semantic annotations, and extension content. A redacted span <span class="kw">SHOULD</span> be marked with <code>&lt;note type="redaction"&gt;</code> so that the gap is visible rather than silent.</li>
+          <li>Because identifiers may be embedded in URIs that leave the document (<code>…#t184</code>), producers <span class="kw">SHOULD NOT</span> derive <code>id</code> values from personal data.</li>
+          <li>Transcripts of AI conversations may embed user-supplied text that attempts to instruct downstream processors. A processor that feeds HTMT content to a language model <span class="kw">SHOULD</span> treat utterance text as data, not instructions, and <span class="kw">SHOULD</span> preserve speaker boundaries when doing so.</li>
+        </ul>
+      </section>
+
+      <section id="mediatype">
+        <h2>15. Media Type and File Extension</h2>
+        <table>
+          <tbody>
+            <tr><td style="width:22%">Media type</td><td><code>application/htmt+xml</code>, following the <code>+xml</code> structured-syntax convention [<a href="#ref-rfc7303">RFC 7303</a>]. This type is <strong>not registered</strong> with IANA at the time of publication; implementations <span class="kw">SHOULD</span> use it and <span class="kw">SHOULD</span> additionally accept <code>application/xml</code> and <code>text/xml</code> for <code>.htmt</code> resources. The <code>text/htmt</code> type named in the conceptual draft is withdrawn.</td></tr>
+            <tr><td>File extension</td><td><code>.htmt</code></td></tr>
+            <tr><td>Encoding</td><td>UTF-8 only. The <code>charset</code> parameter, if present, <span class="kw">MUST</span> be <code>utf-8</code>.</td></tr>
+            <tr><td>Fragment identifiers</td><td>As defined in <a href="#hypertext-fragments">9.1</a>: the value of an <code>id</code> attribute.</td></tr>
+            <tr><td>Magic</td><td>None. Sniff by parsing: root element <code>transcript</code> in namespace <code>https://thetechjoy.com/htmt/1.0</code>.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="comparison">
+        <h2>16. Relationship to Other Formats</h2>
+        <table>
+          <thead><tr><th>Format</th><th>Primary question answered</th><th>HTMT distinction</th></tr></thead>
+          <tbody>
+            <tr><td>Plain text</td><td>What text exists?</td><td>HTMT adds participant, temporal, semantic, and relational structure while remaining readable as text.</td></tr>
+            <tr><td>SRT</td><td>What caption appeared, and when?</td><td>HTMT represents discourse and meaning, not subtitle timing; it has no notion of a caption frame.</td></tr>
+            <tr><td>WebVTT</td><td>What timed text cues belong to this media?</td><td>HTMT adds identities, semantic objects, topics, actions, and hypertext relationships. A WebVTT file is losslessly expressible as HTMT turns; the reverse is not true.</td></tr>
+            <tr><td>HTML</td><td>How is a document structured and presented?</td><td>HTMT's native model is a conversation timeline, not a page. HTMT is XML, not HTML; it has no presentation vocabulary.</td></tr>
+            <tr><td>TEI (spoken-text module)</td><td>How is a speech corpus encoded for scholarship?</td><td>TEI is far larger and optimized for linguistic analysis. HTMT is a small operational interchange format; a TEI transcription can be projected onto HTMT with loss of linguistic detail.</td></tr>
+            <tr><td>Vendor JSON exports</td><td>How does one application serialize its transcript?</td><td>HTMT is a portable interchange syntax with shared semantic primitives and no application-specific schema.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout">
+          <strong>Conceptual distinction:</strong><br />
+          SRT / WebVTT: "What was said, and when?"<br />
+          HTMT: "Who said what, when, in response to what, what did it mean, what was decided, and what does it connect to?"
+        </div>
+      </section>
+
+      <section id="versioning">
+        <h2>17. Versioning and Governance</h2>
+        <ul>
+          <li>The namespace IRI <code>https://thetechjoy.com/htmt/1.0</code> is permanent for all 1.x revisions. A revision that changes the namespace is, by definition, HTMT 2.0.</li>
+          <li><strong>Minor revisions (1.1, 1.2, …)</strong> <span class="kw">MAY</span> add elements, attributes, enumeration values, and well-known event types, and <span class="kw">MAY</span> relax constraints. They <span class="kw">MUST NOT</span> remove or rename anything, tighten a constraint so that a 1.0-conforming document becomes non-conforming, or change the meaning of existing markup. Consequently every 1.0 document is a valid 1.x document, and a 1.0 processor can process any 1.x document under the graceful-degradation rules.</li>
+          <li><strong>Errata</strong> correct the text of this document without changing requirements; they are published as a dated revision of this page.</li>
+          <li>Changes are proposed and discussed in the public repository. Proposals that would enlarge the core with domain vocabulary will be redirected to extensions; the thesis of this specification is that the core stays small.</li>
+          <li>The schema in Appendix A, the reference validator, and the examples are published alongside this document and versioned with it.</li>
+        </ul>
+        <div class="callout">
+          <strong>Specification thesis:</strong> HTMT is not a universal transcription schema. Its value is a small, durable conversation model that remains readable by people, useful to conventional software, and structurally rich enough for AI-era communication.
+        </div>
+      </section>
+
+      <section id="example">
+        <h2>18. Complete Example</h2>
+        <p>This example is conforming and is distributed as <code>examples/engineering-standup.htmt</code>. It exercises metadata, declared people and an agent, media, nested topics with extents, timed and overlapping-capable turns, question/answer linkage, an action and a decision with <code>summary</code>, an agent-authored note, an internal reference, a cross-transcript reference, a claim with source, a risk, and timed events.</p>
+        <pre><code>{{EXAMPLE}}</code></pre>
+      </section>

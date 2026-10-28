@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="HTMT 1.0 — HyperText Markup Transcript. A human-readable, machine-readable XML format for conversations: who said what, when, in response to what, what it meant, and what it connects to." />
+  <meta name="color-scheme" content="light dark" />
+  <title>HTMT 1.0 — HyperText Markup Transcript Specification</title>
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --surface:#ffffff;
+      --surface-2:#eef3f8;
+      --surface-3:#fbfcfe;
+      --text:#172033;
+      --text-2:#3f4b5f;
+      --muted:#5f6b7a;
+      --line:#dbe3ec;
+      --accent:#2457ff;
+      --accent-2:#1638a8;
+      --accent-bg:#f4f7ff;
+      --accent-line:#cad8ff;
+      --code:#0f172a;
+      --code-text:#e5edf7;
+      --code-line:#23304a;
+      --inline-code-bg:#edf1f7;
+      --inline-code-line:#dce3ec;
+      --good:#177245;
+      --warn:#9a5a00;
+      --bad:#a12626;
+      --radius:14px;
+      --shadow:0 12px 34px rgba(20,34,66,.08);
+      --max:1180px;
+    }
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg:#0d1220;
+        --surface:#151c2c;
+        --surface-2:#1c2538;
+        --surface-3:#192134;
+        --text:#e6ecf5;
+        --text-2:#c5cedc;
+        --muted:#8e9ab0;
+        --line:#2a3550;
+        --accent:#7ea2ff;
+        --accent-2:#a9c0ff;
+        --accent-bg:#172040;
+        --accent-line:#2d3f78;
+        --code:#0a0f1b;
+        --code-text:#dfe7f3;
+        --code-line:#263352;
+        --inline-code-bg:#1d2740;
+        --inline-code-line:#2e3b5c;
+        --good:#5fcf8f;
+        --warn:#e0a84a;
+        --bad:#ee7b7b;
+        --shadow:0 12px 34px rgba(0,0,0,.35);
+      }
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top right, rgba(36,87,255,.08), transparent 26rem),
+        var(--bg);
+      line-height:1.65;
+    }
+
+    a{color:var(--accent);text-decoration:none}
+    a:hover{text-decoration:underline}
+    code,kbd,pre{font-family:"SFMono-Regular",ui-monospace,Menlo,Consolas,"Liberation Mono",monospace}
+
+    .hero{
+      border-bottom:1px solid var(--line);
+      background:linear-gradient(180deg,var(--surface) 0%,var(--bg) 100%);
+    }
+    .hero-inner{
+      max-width:var(--max);
+      margin:0 auto;
+      padding:56px 24px 44px;
+      display:grid;
+      grid-template-columns:1.5fr .8fr;
+      gap:42px;
+      align-items:end;
+    }
+    .eyebrow{
+      display:inline-flex;gap:8px;align-items:center;
+      padding:6px 10px;border:1px solid var(--accent-line);border-radius:999px;
+      color:var(--accent-2);background:var(--accent-bg);
+      font-weight:700;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;
+    }
+    h1{font-size:clamp(2.6rem,6vw,5.4rem);line-height:.95;letter-spacing:-.055em;margin:.3em 0 .22em}
+    .subtitle{font-size:1.18rem;color:var(--muted);max-width:760px}
+    .definition{
+      font-size:1.05rem;margin-top:22px;padding:18px 20px;
+      border-left:4px solid var(--accent);background:var(--accent-bg);border-radius:0 10px 10px 0;
+    }
+    .meta-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px}
+    .meta-row{display:grid;grid-template-columns:110px 1fr;gap:14px;padding:9px 0;border-bottom:1px solid var(--line);font-size:.93rem}
+    .meta-row:last-child{border-bottom:0}
+    .meta-row>div{min-width:0}
+    .meta-card code{overflow-wrap:anywhere}
+    .meta-key{color:var(--muted);font-weight:600}
+
+    .layout{max-width:var(--max);margin:0 auto;padding:28px 24px 72px;display:grid;grid-template-columns:260px minmax(0,1fr);gap:36px}
+    nav{
+      position:sticky;top:18px;align-self:start;max-height:calc(100vh - 36px);overflow:auto;
+      background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;
+    }
+    nav strong{display:block;margin-bottom:9px;font-size:.84rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+    nav a{display:block;color:var(--text-2);padding:5px 8px;border-radius:8px;font-size:.9rem}
+    nav a:hover{background:var(--surface-2);text-decoration:none;color:var(--accent-2)}
+    nav .appx{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+
+    main{min-width:0}
+    section{
+      background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+      box-shadow:0 8px 24px rgba(20,34,66,.04);padding:30px;margin-bottom:24px;scroll-margin-top:20px;
+    }
+    h2{margin:0 0 12px;font-size:1.72rem;letter-spacing:-.025em}
+    h3{margin:28px 0 10px;font-size:1.15rem;scroll-margin-top:20px}
+    h4{margin:20px 0 6px;font-size:1rem}
+    p{margin:10px 0}
+    ul,ol{padding-left:1.35rem}
+    li{margin:.3rem 0}
+    .lead{font-size:1.08rem;color:var(--text-2)}
+    .callout{margin:18px 0;border:1px solid var(--accent-line);background:var(--accent-bg);border-radius:12px;padding:16px 18px}
+    .callout strong{color:var(--accent-2)}
+    .callout.warn{border-color:color-mix(in srgb,var(--warn) 45%,transparent);background:color-mix(in srgb,var(--warn) 9%,var(--surface))}
+    .callout.warn strong{color:var(--warn)}
+
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:16px 0}
+    .card{border:1px solid var(--line);border-radius:12px;padding:17px;background:var(--surface-3)}
+    .card h3{margin:0 0 6px;font-size:1rem}
+
+    pre{
+      overflow:auto;background:var(--code);color:var(--code-text);padding:18px 20px;border-radius:12px;
+      line-height:1.5;font-size:.86rem;border:1px solid var(--code-line);tab-size:2;
+    }
+    :not(pre) > code{background:var(--inline-code-bg);border:1px solid var(--inline-code-line);border-radius:6px;padding:.12em .36em;font-size:.92em}
+    .kw{font-variant:all-small-caps;letter-spacing:.04em;font-weight:700}
+
+    table{width:100%;border-collapse:collapse;margin:16px 0 6px;font-size:.92rem}
+    th,td{text-align:left;vertical-align:top;border-bottom:1px solid var(--line);padding:9px 12px}
+    th{background:var(--surface-2);color:var(--text-2);font-size:.8rem;text-transform:uppercase;letter-spacing:.045em}
+    .table-wrap{overflow-x:auto;margin:16px 0 6px}
+    .table-wrap table{margin:0}
+    .req{font-weight:700;color:var(--good)}
+    .opt{font-weight:700;color:var(--warn)}
+    .no{font-weight:700;color:var(--bad)}
+
+    .attr-table th:first-child,.attr-table td:first-child{width:22%}
+    .attr-table th:nth-child(2),.attr-table td:nth-child(2){width:22%}
+
+    .footer{max-width:var(--max);margin:0 auto;padding:0 24px 60px;color:var(--muted);font-size:.92rem}
+    .badge{display:inline-block;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 8px;font-size:.78rem;margin-right:6px}
+    dfn{font-style:normal;font-weight:700}
+
+    @media (max-width:900px){
+      .hero-inner{grid-template-columns:1fr}
+      .layout{grid-template-columns:1fr}
+      nav{position:relative;top:0;max-height:none}
+      .grid{grid-template-columns:1fr}
+      section{padding:22px 18px}
+    }
+    @media print{
+      body{background:#fff;color:#000}
+      nav{display:none}
+      .layout{display:block}
+      section,.meta-card{box-shadow:none;break-inside:avoid-page}
+      pre{white-space:pre-wrap}
+      a{color:inherit;text-decoration:none}
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <div>
+        <span class="eyebrow">Technical Specification · Version 1.0 · Final</span>
+        <h1>HTMT</h1>
+        <p class="subtitle"><strong>HyperText Markup Transcript</strong> is a human-readable, machine-readable markup language for representing conversations as structured, temporal, semantically meaningful documents.</p>
+        <div class="definition">
+          <strong>Core definition:</strong> HTMT is a serialization format for conversations. It represents not only what was said, but who said it, when it occurred, what it meant, how it relates to surrounding discourse, and what actions, decisions, references, or events emerged from it.
+        </div>
+      </div>
+
+      <aside class="meta-card" aria-label="Specification metadata">
+        <div class="meta-row"><div class="meta-key">Version</div><div>HTMT 1.0</div></div>
+        <div class="meta-row"><div class="meta-key">Status</div><div>Final · 2026-10-28</div></div>
+        <div class="meta-row"><div class="meta-key">Publisher</div><div>TechJoy</div></div>
+        <div class="meta-row"><div class="meta-key">Editor</div><div>Logan Schmidt</div></div>
+        <div class="meta-row"><div class="meta-key">Extension</div><div><code>.htmt</code></div></div>
+        <div class="meta-row"><div class="meta-key">Media type</div><div><code>application/htmt+xml</code> (unregistered)</div></div>
+        <div class="meta-row"><div class="meta-key">Namespace</div><div><code>https://thetechjoy.com/htmt/1.0</code></div></div>
+        <div class="meta-row"><div class="meta-key">Encoding</div><div>UTF-8</div></div>
+        <div class="meta-row"><div class="meta-key">License</div><div><a href="https://unlicense.org/">The Unlicense</a></div></div>
+      </aside>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav aria-label="Specification navigation">
+      <strong>Contents</strong>
+      <a href="#status">Status of this document</a>
+      <a href="#conventions">Conventions</a>
+      <a href="#purpose">1. Purpose and Scope</a>
+      <a href="#principles">2. Design Principles</a>
+      <a href="#model">3. Document Model</a>
+      <a href="#syntax">4. Document Syntax</a>
+      <a href="#core">5. Core Elements</a>
+      <a href="#datatypes">6. Data Types</a>
+      <a href="#temporal">7. Temporal Model</a>
+      <a href="#semantic">8. Semantic Elements</a>
+      <a href="#hypertext">9. HyperText References</a>
+      <a href="#events">10. Events</a>
+      <a href="#ai">11. Agents and AI Conversations</a>
+      <a href="#extensibility">12. Extensibility</a>
+      <a href="#conformance">13. Conformance</a>
+      <a href="#security">14. Security and Privacy</a>
+      <a href="#mediatype">15. Media Type and File Extension</a>
+      <a href="#comparison">16. Relationship to Other Formats</a>
+      <a href="#versioning">17. Versioning and Governance</a>
+      <a href="#example">18. Complete Example</a>
+      <div class="appx">
+        <a href="#appendix-a">A. RELAX NG Schema</a>
+        <a href="#appendix-b">B. Grammar (ABNF)</a>
+        <a href="#appendix-c">C. Well-Known Event Types</a>
+        <a href="#appendix-d">D. Changes from the Draft</a>
+        <a href="#appendix-e">E. References</a>
+      </div>
+    </nav>
+
+    <main>

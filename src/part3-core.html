@@ -1,0 +1,224 @@
+      <section id="core">
+        <h2>5. Core Elements</h2>
+        <p>This section defines every element in the HTMT namespace. The schema in <a href="#appendix-a">Appendix A</a> is the normative statement of content models and attribute types; where prose and schema disagree, the schema governs content and the prose governs meaning. Attributes shared by all elements — <code>xml:lang</code>, <code>xml:space</code>, and namespaced extension attributes — are not repeated in each table.</p>
+
+        <table>
+          <thead><tr><th>Element</th><th>Purpose</th><th>Occurrence</th></tr></thead>
+          <tbody>
+            <tr><td><code>&lt;transcript&gt;</code></td><td>Root document element.</td><td class="req">Required, exactly one</td></tr>
+            <tr><td><code>&lt;meta&gt;</code></td><td>Metadata not otherwise represented by core attributes.</td><td>Optional, at most one</td></tr>
+            <tr><td><code>&lt;property&gt;</code></td><td>One named metadata value inside <code>&lt;meta&gt;</code>.</td><td>Optional</td></tr>
+            <tr><td><code>&lt;participants&gt;</code></td><td>Declares the people and agents referenced by speaker identifiers.</td><td>Optional, at most one</td></tr>
+            <tr><td><code>&lt;person&gt;</code></td><td>Declares a human participant.</td><td>Optional</td></tr>
+            <tr><td><code>&lt;agent&gt;</code></td><td>Declares an AI or software participant.</td><td>Optional</td></tr>
+            <tr><td><code>&lt;media&gt;</code></td><td>Associates an audio, video, or text source with the timeline.</td><td>Optional, repeatable</td></tr>
+            <tr><td><code>&lt;body&gt;</code></td><td>Container for the timeline.</td><td class="req">Required, exactly one</td></tr>
+            <tr><td><code>&lt;topic&gt;</code></td><td>Groups timeline material by subject or section; nestable.</td><td>Optional</td></tr>
+            <tr><td><code>&lt;turn&gt;</code></td><td>One speaker contribution. The primary unit.</td><td class="req">Primary unit</td></tr>
+            <tr><td><code>&lt;event&gt;</code></td><td>A non-speech occurrence on the timeline.</td><td>Optional</td></tr>
+            <tr><td><code>&lt;ref&gt;</code></td><td>A hypertext reference to an internal or external resource.</td><td>Optional</td></tr>
+            <tr><td>Semantic elements</td><td><code>question answer decision action claim fact risk note quote</code> — see <a href="#semantic">Section 8</a>.</td><td>Optional</td></tr>
+          </tbody>
+        </table>
+
+        <h3 id="el-transcript">5.1 <code>&lt;transcript&gt;</code></h3>
+        <p>The root element. Content, in order: <code>meta?</code>, <code>participants?</code>, <code>media*</code>, <code>body</code>.</p>
+        <table class="attr-table">
+          <thead><tr><th>Attribute</th><th>Type</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>version</code> <span class="req">required</span></td><td>literal <code>1.0</code></td><td>Specification revision claimed (<a href="#syntax-namespace">4.2</a>).</td></tr>
+            <tr><td><code>id</code></td><td>id</td><td>Stable identifier for the conversation. <span class="kw">SHOULD</span> be unique within the producing system so cross-transcript references stay unambiguous.</td></tr>
+            <tr><td><code>title</code></td><td>text</td><td>Human-readable title.</td></tr>
+            <tr><td><code>date</code></td><td>date | datetime</td><td>When the conversation took place. A datetime with offset is <span class="kw">RECOMMENDED</span>; it anchors media time to wall-clock time (<a href="#temporal-absolute">7.3</a>).</td></tr>
+            <tr><td><code>duration</code></td><td>clock-time</td><td>Total length of the timeline.</td></tr>
+          </tbody>
+        </table>
+
+        <h3 id="el-meta">5.2 <code>&lt;meta&gt;</code> and <code>&lt;property&gt;</code></h3>
+        <p><code>&lt;meta&gt;</code> contains zero or more <code>&lt;property name="…"&gt;value&lt;/property&gt;</code> elements and any extension elements. <code>name</code> is a token (<a href="#datatypes">Section 6</a>). Property names are not registered; producers <span class="kw">SHOULD</span> prefer short, lowercase, hyphenated names and <span class="kw">SHOULD</span> use extension elements rather than properties when a value has internal structure. The same name <span class="kw">MAY</span> appear more than once to express a multi-valued property. Processors <span class="kw">MUST NOT</span> require any property to be present.</p>
+        <pre><code>&lt;meta&gt;
+  &lt;property name="source-system"&gt;Example Meetings&lt;/property&gt;
+  &lt;property name="transcription-method"&gt;asr&lt;/property&gt;
+  &lt;property name="tag"&gt;engineering&lt;/property&gt;
+  &lt;property name="tag"&gt;weekly&lt;/property&gt;
+&lt;/meta&gt;</code></pre>
+
+        <h3 id="el-participants">5.3 <code>&lt;participants&gt;</code>, <code>&lt;person&gt;</code>, <code>&lt;agent&gt;</code></h3>
+        <pre><code>&lt;participants&gt;
+  &lt;person id="logan" name="Logan Schmidt" role="lead" /&gt;
+  &lt;person id="priya" name="Priya Nair" /&gt;
+  &lt;agent id="assistant" name="Assistant" model="example-model-2" provider="Example AI" /&gt;
+&lt;/participants&gt;</code></pre>
+        <table class="attr-table">
+          <thead><tr><th>Attribute</th><th>Applies to</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>id</code> <span class="req">required</span></td><td>person, agent</td><td>Identifier referenced by <code>speaker</code> and <code>owner</code>.</td></tr>
+            <tr><td><code>name</code></td><td>person, agent</td><td>Display name. If absent, processors <span class="kw">SHOULD</span> display the <code>id</code>.</td></tr>
+            <tr><td><code>role</code></td><td>person, agent</td><td>Free-text role in this conversation (host, interviewer, customer, moderator, tool).</td></tr>
+            <tr><td><code>href</code></td><td>person, agent</td><td>URI identifying the participant outside the document (profile, directory entry, model card).</td></tr>
+            <tr><td><code>model</code></td><td>agent</td><td>Model identifier as reported by the agent's runtime.</td></tr>
+            <tr><td><code>provider</code></td><td>agent</td><td>Organization or service operating the model or agent.</td></tr>
+          </tbody>
+        </table>
+        <p><strong>Speaker resolution.</strong> When a document contains a <code>&lt;participants&gt;</code> element, every <code>speaker</code> and <code>owner</code> value in the document <span class="kw">MUST</span> equal the <code>id</code> of a declared participant. When no <code>&lt;participants&gt;</code> element is present, <code>speaker</code> and <code>owner</code> values are literal display labels; two turns with the same label <span class="kw">SHOULD</span> be treated as the same speaker. Producers <span class="kw">SHOULD</span> declare participants whenever more is known about a speaker than a label. A <code>&lt;turn&gt;</code> without a <code>speaker</code> attribute is <em>unattributed</em>.</p>
+
+        <h3 id="el-media">5.4 <code>&lt;media&gt;</code></h3>
+        <pre><code>&lt;media id="recording" type="audio" src="./engineering-standup.mp3" duration="00:18:42" /&gt;
+&lt;media id="camera-2" type="video" src="./camera-2.mp4" offset="00:00:04.500" /&gt;</code></pre>
+        <table class="attr-table">
+          <thead><tr><th>Attribute</th><th>Type</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>src</code> <span class="req">required</span></td><td>URI</td><td>Location of the media resource. Relative references resolve against the document's base URI.</td></tr>
+            <tr><td><code>id</code></td><td>id</td><td>Required when more than one <code>&lt;media&gt;</code> is declared, so turns and events can select one with their <code>media</code> attribute.</td></tr>
+            <tr><td><code>type</code></td><td><code>audio</code> | <code>video</code> | <code>text</code> | <code>other</code></td><td>Broad kind of resource. The concrete media type is discovered from the resource itself.</td></tr>
+            <tr><td><code>duration</code></td><td>clock-time</td><td>Length of the resource.</td></tr>
+            <tr><td><code>offset</code></td><td>clock-time</td><td>Media time at which transcript time <code>00:00:00</code> occurs; default <code>00:00:00</code>. Lets several recordings that started at different moments share one timeline (<a href="#temporal-media">7.4</a>).</td></tr>
+          </tbody>
+        </table>
+
+        <h3 id="el-body">5.5 <code>&lt;body&gt;</code></h3>
+        <p>The timeline container. Content: any sequence of <code>&lt;topic&gt;</code>, <code>&lt;turn&gt;</code>, <code>&lt;event&gt;</code>, <code>&lt;note&gt;</code>, and extension elements. Exactly one <code>&lt;body&gt;</code> <span class="kw">MUST</span> be present; it <span class="kw">MAY</span> be empty. There are no attributes beyond the common ones.</p>
+
+        <h3 id="el-topic">5.6 <code>&lt;topic&gt;</code></h3>
+        <pre><code>&lt;topic id="inventory" name="Inventory" start="00:00:00" end="00:02:10"&gt;
+  &lt;turn speaker="sam"&gt;Let's talk about inventory drift.&lt;/turn&gt;
+  …
+  &lt;topic name="Reconciliation job"&gt;…&lt;/topic&gt;
+&lt;/topic&gt;</code></pre>
+        <table class="attr-table">
+          <thead><tr><th>Attribute</th><th>Type</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>name</code> <span class="req">required</span></td><td>text</td><td>Human-readable subject of the section.</td></tr>
+            <tr><td><code>id</code></td><td>id</td><td>Addressable identifier.</td></tr>
+            <tr><td><code>start</code>, <code>end</code></td><td>clock-time</td><td>Extent on the timeline. If absent, the extent is that of the first and last timed descendants.</td></tr>
+          </tbody>
+        </table>
+        <p>Topics group the timeline; they never reorder it. Topic boundaries are a sectioning hint from which processors can derive chapters, navigation, and summaries. A topic <span class="kw">MAY</span> be empty and <span class="kw">MAY</span> contain other topics to any depth.</p>
+
+        <h3 id="el-turn">5.7 <code>&lt;turn&gt;</code></h3>
+        <pre><code>&lt;turn id="t42" speaker="logan" start="00:13:42.220" end="00:13:49.810" confidence="0.94"&gt;
+  &lt;action id="a7" owner="logan" due="2026-08-27" status="open" summary="Validate the billing export"&gt;
+    We should verify the export before billing runs.
+  &lt;/action&gt;
+&lt;/turn&gt;</code></pre>
+        <table class="attr-table">
+          <thead><tr><th>Attribute</th><th>Type</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>id</code></td><td>id</td><td>Stable identifier. <span class="kw">RECOMMENDED</span> for every turn a producer may want to reference later.</td></tr>
+            <tr><td><code>speaker</code></td><td>participant id or label</td><td>Who spoke (<a href="#el-participants">5.3</a>).</td></tr>
+            <tr><td><code>start</code>, <code>end</code></td><td>clock-time</td><td>Media time of the first and last spoken word (<a href="#temporal">Section 7</a>).</td></tr>
+            <tr><td><code>datetime</code></td><td>datetime</td><td>Absolute wall-clock time at which the turn began.</td></tr>
+            <tr><td><code>media</code></td><td>media id</td><td>Which declared <code>&lt;media&gt;</code> the temporal attributes refer to; default is the first declared media.</td></tr>
+            <tr><td><code>confidence</code></td><td>decimal 0–1</td><td>Producer's confidence that the utterance text is an accurate transcription of what was said (typically ASR confidence). Unrelated to the truth of the content.</td></tr>
+          </tbody>
+        </table>
+        <p>Content is <em>inline content</em>: character data interleaved with <code>&lt;ref&gt;</code>, semantic elements, and extension elements in any order and nesting. The text of nested elements belongs to the utterance (<a href="#model-terms">3.1</a>). A turn with no text and no children is permitted and represents a contribution with no transcribed content (for example, an inaudible turn, which <span class="kw">SHOULD</span> additionally carry an <code>&lt;event type="inaudible"&gt;</code> sibling or a <code>&lt;note&gt;</code>).</p>
+
+        <h3 id="el-event">5.8 <code>&lt;event&gt;</code></h3>
+        <p>Defined in <a href="#events">Section 10</a>. Events share the turn's temporal attributes and inline content model, add a required <code>type</code>, and <span class="kw">MAY</span> carry <code>speaker</code> to attribute the event to a participant.</p>
+
+        <h3 id="el-ref">5.9 <code>&lt;ref&gt;</code></h3>
+        <p>Defined in <a href="#hypertext">Section 9</a>. A <code>&lt;ref&gt;</code> wraps inline content and links it to a resource via <code>href</code>.</p>
+      </section>
+
+      <section id="datatypes">
+        <h2>6. Data Types</h2>
+        <p>Attribute values are typed as follows. The normative lexical forms are given in <a href="#appendix-b">Appendix B</a>; the schema in <a href="#appendix-a">Appendix A</a> enforces them.</p>
+        <table>
+          <thead><tr><th>Type</th><th>Lexical form</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><dfn>id</dfn></td><td>XML Name beginning with a letter or underscore, no colon (an <code>NCName</code>)</td><td>Unique across all <code>id</code> attributes in the document. Case-sensitive. Producers <span class="kw">SHOULD</span> keep identifiers short and ASCII (<code>t42</code>, <code>q17</code>, <code>d4</code>) because they appear in URIs.</td></tr>
+            <tr><td><dfn>idref</dfn></td><td>same as id</td><td><span class="kw">MUST</span> match an <code>id</code> in the same document. Used by <code>to</code>, <code>supersedes</code>, <code>media</code>.</td></tr>
+            <tr><td><dfn>token</dfn></td><td><code>[a-z][a-z0-9]*(-[a-z0-9]+)*</code></td><td>Lowercase hyphenated identifier for enumerations and names (<code>screen-share</code>, <code>source-system</code>).</td></tr>
+            <tr><td><dfn>text</dfn></td><td>any string</td><td>Display text, not interpreted.</td></tr>
+            <tr><td><dfn>URI</dfn></td><td>IRI reference [<a href="#ref-rfc3987">RFC 3987</a>]</td><td>Absolute or relative. Relative references resolve against the document's base URI. Fragment-only references (<code>#t42</code>) address identifiers in the current document.</td></tr>
+            <tr><td><dfn>clock-time</dfn></td><td><code>H+:MM:SS[.f{1,6}]</code> — e.g. <code>00:13:42.220</code>, <code>1:05:00</code>, <code>101:00:00</code></td><td>Elapsed time from the transcript time base. Hours are unbounded and need not be zero-padded; minutes and seconds are exactly two digits; fractional seconds are optional to microsecond precision. This is the only form for <code>start</code>, <code>end</code>, <code>duration</code>, and <code>offset</code>.</td></tr>
+            <tr><td><dfn>datetime</dfn></td><td>ISO 8601 / RFC 3339 date-time, e.g. <code>2026-08-27T09:00:00-05:00</code></td><td>Absolute wall-clock time. A UTC offset or <code>Z</code> <span class="kw">SHOULD</span> be present; a value without one denotes local time of the conversation.</td></tr>
+            <tr><td><dfn>date</dfn></td><td>ISO 8601 date (<code>2026-08-27</code>) or datetime</td><td>Used by <code>transcript/@date</code> and <code>action/@due</code>.</td></tr>
+            <tr><td><dfn>confidence</dfn></td><td>decimal in [0, 1]</td><td>1 is certain. Producers <span class="kw">SHOULD NOT</span> emit a confidence they did not measure or estimate.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="temporal">
+        <h2>7. Temporal Model</h2>
+        <p>Timestamps are optional at every level. The same syntax therefore represents a live meeting, a typed chat, a podcast, or an asynchronous AI conversation. When present, timestamps refine the timeline; they never override it.</p>
+
+        <h3 id="temporal-order">7.1 Ordering rules</h3>
+        <ul>
+          <li>Timeline order (<a href="#model-terms">3.1</a>) is document order. A processor <span class="kw">MUST</span> present turns and events in document order regardless of their timestamps.</li>
+          <li>Producers <span class="kw">SHOULD</span> emit turns in non-decreasing <code>start</code> order. Overlapping speech is represented by overlapping <code>start</code>/<code>end</code> ranges on consecutive turns, not by reordering or splitting the source.</li>
+          <li>Processors <span class="kw">MUST NOT</span> assume turns are non-overlapping, contiguous, or gap-free.</li>
+          <li><code>start</code> <span class="kw">MAY</span> appear without <code>end</code>. <code>end</code> <span class="kw">MUST NOT</span> appear without <code>start</code>, and <span class="kw">MUST NOT</span> be earlier than <code>start</code>.</li>
+          <li>Timestamps on a <code>&lt;topic&gt;</code> <span class="kw">SHOULD</span> enclose the timestamps of its timed descendants.</li>
+        </ul>
+
+        <h3 id="temporal-clock">7.2 Media time</h3>
+        <p><code>start</code>, <code>end</code>, and <code>duration</code> are clock-times measured from the <dfn>time base</dfn>: transcript time <code>00:00:00</code>. For a recorded conversation, the time base is normally the start of the primary recording. A timed turn:</p>
+        <pre><code>&lt;turn id="t42" speaker="logan" start="00:13:42.220" end="00:13:49.810"&gt;
+  We should verify the export before billing runs.
+&lt;/turn&gt;</code></pre>
+
+        <h3 id="temporal-absolute">7.3 Absolute time</h3>
+        <p>Wall-clock time is expressed with the separate <code>datetime</code> attribute, never by placing a date-time in <code>start</code>. When <code>transcript/@date</code> is a datetime, a processor <span class="kw">MAY</span> derive the absolute time of any timed turn as <code>date + start</code>; an explicit <code>datetime</code> on a turn takes precedence over the derived value. Asynchronous conversations (chat, e-mail-like threads, AI sessions) typically carry <code>datetime</code> and no media time at all.</p>
+
+        <h3 id="temporal-media">7.4 Media synchronization</h3>
+        <p>To seek a media resource to a turn, a processor computes <code>media-time = start + media/@offset</code>. When several <code>&lt;media&gt;</code> elements are declared, a turn or event selects one with its <code>media</code> attribute; otherwise the first declared media applies. A processor <span class="kw">MAY</span> use temporal attributes to seek media when a user selects a turn or semantic object, and to highlight the current turn during playback.</p>
+      </section>
+
+      <section id="semantic">
+        <h2>8. Semantic Elements</h2>
+        <p>Semantic elements let transcript text carry operational or interpretive meaning. They are <em>annotations on discourse</em>: a semantic element wraps the words that express it, so the words remain part of the utterance and remain visible to a processor that ignores the annotation.</p>
+        <p>All semantic elements take inline content and <span class="kw">MAY</span> carry an <code>id</code> and a <code>summary</code>. <code>summary</code> is a short normalized restatement of the object for indexes, task lists, and decision logs ("Deploy Monday"); it is metadata, never part of the utterance text, and it is where paraphrase belongs. They <span class="kw">MAY</span> nest (a <code>&lt;quote&gt;</code> inside a <code>&lt;claim&gt;</code>, a <code>&lt;ref&gt;</code> inside an <code>&lt;action&gt;</code>). Except for <code>&lt;note&gt;</code>, they <span class="kw">MUST</span> appear inside a <code>&lt;turn&gt;</code> or <code>&lt;event&gt;</code>; <code>&lt;note&gt;</code> <span class="kw">MAY</span> additionally appear directly in <code>&lt;body&gt;</code> or <code>&lt;topic&gt;</code>, where it represents an editorial annotation that nobody said.</p>
+
+        <table>
+          <thead><tr><th>Element</th><th>Meaning</th><th>Attributes</th></tr></thead>
+          <tbody>
+            <tr><td><code>&lt;question&gt;</code></td><td>A question posed by the speaker.</td><td><code>id</code> — give one whenever an answer is expected.</td></tr>
+            <tr><td><code>&lt;answer&gt;</code></td><td>A response to a specific question.</td><td><code>to</code> <span class="req">required</span>: idref of the <code>&lt;question&gt;</code> answered.</td></tr>
+            <tr><td><code>&lt;decision&gt;</code></td><td>A decision expressed in the conversation.</td><td><code>status</code>: <code>proposed</code> | <code>accepted</code> | <code>rejected</code> | <code>superseded</code> (default <code>proposed</code>); <code>supersedes</code>: idref of an earlier decision this one replaces.</td></tr>
+            <tr><td><code>&lt;action&gt;</code></td><td>An action item, assigned or inferred.</td><td><code>owner</code>: participant id or label; <code>due</code>: date; <code>status</code>: <code>open</code> | <code>done</code> | <code>cancelled</code> (default <code>open</code>).</td></tr>
+            <tr><td><code>&lt;claim&gt;</code></td><td>A factual or inferential assertion whose truth is not established within the conversation.</td><td><code>confidence</code>: the <em>speaker's or annotator's</em> confidence in the claim; <code>source</code>: URI of supporting material.</td></tr>
+            <tr><td><code>&lt;fact&gt;</code></td><td>A statement treated as established within the conversation's context.</td><td><code>source</code>: URI.</td></tr>
+            <tr><td><code>&lt;risk&gt;</code></td><td>A risk, concern, or possible adverse condition.</td><td><code>severity</code>: <code>low</code> | <code>medium</code> | <code>high</code> | <code>critical</code>.</td></tr>
+            <tr><td><code>&lt;note&gt;</code></td><td>An editorial or system annotation.</td><td><code>author</code>: participant id or label; <code>type</code>: token, e.g. <code>summary</code>, <code>correction</code>, <code>redaction</code>, <code>context</code>.</td></tr>
+            <tr><td><code>&lt;quote&gt;</code></td><td>Material the speaker is quoting rather than asserting.</td><td><code>source</code>: URI, which <span class="kw">MAY</span> be a fragment reference to the turn being quoted (<code>#t12</code>).</td></tr>
+          </tbody>
+        </table>
+
+        <h3 id="semantic-qa">8.1 Question and answer</h3>
+        <pre><code>&lt;turn speaker="sam" start="00:08:31"&gt;
+  &lt;question id="q17"&gt;Who is going to validate the export?&lt;/question&gt;
+&lt;/turn&gt;
+
+&lt;turn speaker="logan" start="00:08:45"&gt;
+  &lt;answer to="q17"&gt;
+    &lt;action id="a3" owner="logan" due="2026-08-27" status="open" summary="Validate export"&gt;
+      I'll validate it this afternoon.
+    &lt;/action&gt;
+  &lt;/answer&gt;
+&lt;/turn&gt;</code></pre>
+        <p>A question <span class="kw">MAY</span> receive any number of answers, including none. An <code>&lt;answer&gt;</code> <span class="kw">MUST</span> reference a question in the same document; cross-document answers are expressed with <code>&lt;ref&gt;</code>.</p>
+
+        <h3 id="semantic-decision">8.2 Decision lifecycle</h3>
+        <pre><code>&lt;turn speaker="logan"&gt;
+  &lt;decision id="d4" status="proposed" summary="Deploy Friday"&gt;
+    I think we should deploy this Friday.
+  &lt;/decision&gt;
+&lt;/turn&gt;
+
+&lt;turn speaker="priya"&gt;
+  Friday collides with the billing run.
+  &lt;decision id="d5" status="accepted" supersedes="d4" summary="Deploy Monday"&gt;
+    Monday instead.
+  &lt;/decision&gt;
+&lt;/turn&gt;</code></pre>
+        <p>Status reflects the state <em>as of the end of the document</em>: when <code>d5</code> supersedes <code>d4</code>, a producer that rewrites the document <span class="kw">SHOULD</span> set <code>d4</code> to <code>superseded</code>; a processor <span class="kw">MUST</span> treat a decision that is the target of a <code>supersedes</code> as superseded even if its own <code>status</code> was not updated.</p>
+
+        <h3 id="semantic-claims">8.3 Claims, facts, and confidence</h3>
+        <p>The distinction between <code>&lt;claim&gt;</code> and <code>&lt;fact&gt;</code> is epistemic status <em>within the conversation</em>, not objective truth. A <code>confidence</code> on a claim is the speaker's or annotator's; a <code>confidence</code> on a turn is transcription accuracy. Processors <span class="kw">MUST NOT</span> conflate the two.</p>
+
+        <div class="callout">
+          <strong>Annotation, not replacement:</strong> a processor that removes every semantic element but keeps its content <span class="kw">MUST</span> obtain the same utterance text. Producers <span class="kw">MUST NOT</span> place inside a semantic element words that were not part of the utterance; a normalized restatement goes in the <code>summary</code> attribute, and longer editorial commentary in a <code>&lt;note&gt;</code>.
+        </div>
+      </section>
