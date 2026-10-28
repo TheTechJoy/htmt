@@ -2,7 +2,9 @@
 
 A small, human-readable XML format for conversations: who said what, when, in response to what, what it meant, and what it connects to.
 
-**Specification:** `index.html` (publish with GitHub Pages; no build step needed).
+**Specification:** https://thetechjoy.github.io/htmt/ (the `index.html` in this repository, served by GitHub Pages).
+
+[![check](https://github.com/TheTechJoy/htmt/actions/workflows/check.yml/badge.svg)](https://github.com/TheTechJoy/htmt/actions/workflows/check.yml)
 
 ```xml
 <transcript xmlns="https://thetechjoy.com/htmt/1.0" version="1.0">
@@ -62,6 +64,7 @@ htmt/
 │   ├── build.py            assembles index.html, embedding the schema and examples verbatim
 │   └── make_rng.py         maintainers: regenerates htmt-1.0.rng from htmt-1.0.rnc
 ├── tests/                  converter inputs and invalid documents used by test.py
+├── .github/workflows/      CI: runs the tests, the schema cross-check and the build check
 ├── skills/htmt/            AI agent skill and quick reference
 ├── .claude-plugin/         Claude Code plugin and marketplace manifests
 └── src/                    specification source, split by section
