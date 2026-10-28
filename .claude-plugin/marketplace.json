@@ -1,0 +1,15 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "htmt",
+  "description": "HTMT (HyperText Markup Transcript) tools and skill for AI agents.",
+  "owner": {
+    "name": "TechJoy"
+  },
+  "plugins": [
+    {
+      "name": "htmt",
+      "source": "./",
+      "description": "Write, convert, enrich and validate HTMT transcripts."
+    }
+  ]
+}

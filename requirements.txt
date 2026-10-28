@@ -1,0 +1,3 @@
+# Needed to validate HTMT documents (tools/validate.py, tools/test.py).
+# tools/to_htmt.py and tools/build.py use only the Python standard library.
+lxml==6.1.2

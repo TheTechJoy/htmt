@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- expect: unresolved internal reference #a9 -->
+<transcript xmlns="https://thetechjoy.com/htmt/1.0" version="1.0">
+  <body><turn>See <ref href="#a9">the action</ref>.</turn></body>
+</transcript>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- expect: media 'cam' is not declared -->
+<transcript xmlns="https://thetechjoy.com/htmt/1.0" version="1.0">
+  <media id="rec" src="a.mp3" />
+  <body><turn id="cam">x</turn><turn media="cam">Wrong media.</turn></body>
+</transcript>

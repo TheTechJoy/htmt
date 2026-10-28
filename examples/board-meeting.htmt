@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- A board meeting of a fictional nonprofit with many speakers, a guest,
      and a public comment period. Shows: formal agenda as topics, motions
-     as decisions (proposed, accepted, rejected), votes as reactions,
-     quoted text, a recess, a late arrival, an unidentified speaker,
+     as decisions whose status records the outcome (accepted, rejected),
+     votes as reactions,
+     quoted text, a recess, a late arrival, an unidentified speaker (no speaker attribute),
      inaudible audio, wall-clock datetimes, and a secretary's minutes note. -->
 <transcript
   xmlns="https://thetechjoy.com/htmt/1.0"
@@ -57,7 +58,7 @@
     <topic id="minutes" name="2. Approval of prior minutes" start="00:03:00" end="00:06:30">
 
       <turn id="t3" speaker="d-osei" start="00:03:10" end="00:03:18">
-        <decision id="m1" status="proposed"
+        <decision id="m1" status="accepted"
                   summary="Approve the September 9 minutes as written">
           I move to approve the minutes of September ninth as written.
         </decision>
@@ -70,10 +71,7 @@
       </event>
 
       <turn id="t5" speaker="chair" start="00:03:46" end="00:03:52">
-        <decision id="m1-result" status="accepted" supersedes="m1"
-                  summary="September 9 minutes approved">
-          The minutes are approved.
-        </decision>
+        The minutes are approved.
       </turn>
 
     </topic>
@@ -121,7 +119,7 @@
       <event type="inaudible" start="00:14:05" end="00:14:12" speaker="d-osei" />
 
       <turn id="t10" speaker="vice" start="00:15:00" end="00:15:12">
-        <decision id="m2" status="proposed"
+        <decision id="m2" status="accepted"
                   summary="Accept the 2026 audit report">
           I move that we accept the audit report.
         </decision>
@@ -134,10 +132,7 @@
       </event>
 
       <turn id="t12" speaker="chair" start="00:15:41" end="00:15:46">
-        <decision id="m2-result" status="accepted" supersedes="m2"
-                  summary="2026 audit report accepted">
-          The audit report is accepted.
-        </decision>
+        The audit report is accepted.
       </turn>
 
     </topic>
@@ -168,7 +163,7 @@
       </turn>
 
       <turn id="t16" speaker="d-osei" start="00:55:10" end="00:55:25">
-        <decision id="m3" status="proposed"
+        <decision id="m3" status="rejected"
                   summary="Approve permanent Sunday hours at the east branch">
           I move to approve permanent Sunday hours at the east branch.
         </decision>
@@ -183,14 +178,11 @@
       </event>
 
       <turn id="t18" speaker="chair" start="00:58:31" end="00:58:40">
-        <decision id="m3-result" status="rejected" supersedes="m3"
-                  summary="Permanent Sunday hours not approved">
-          The motion fails.
-        </decision>
+        The motion fails.
       </turn>
 
       <turn id="t19" speaker="vice" start="00:59:00" end="00:59:30">
-        <decision id="m4" status="proposed"
+        <decision id="m4" status="accepted"
                   summary="Approve a one-year Sunday hours pilot">
           Then I move a one-year pilot, with a report back to the board in
           ten months.
@@ -204,10 +196,7 @@
       </event>
 
       <turn id="t21" speaker="chair" start="01:01:31" end="01:01:40">
-        <decision id="m4-result" status="accepted" supersedes="m4"
-                  summary="One-year Sunday hours pilot approved">
-          The pilot is approved.
-        </decision>
+        The pilot is approved.
         <action id="a2" owner="ed" due="2027-08-01" status="open"
                 summary="Report on the Sunday pilot to the board">
           Rachel, please bring the pilot results back by August.
@@ -232,7 +221,7 @@
       </turn>
 
       <turn id="t24" start="01:23:00" end="01:23:20" confidence="0.4">
-        Speaker not identified: a second comment about late fees.
+        And one more thing, could the board look at the late fees for children?
       </turn>
 
     </topic>
@@ -247,10 +236,10 @@
     </topic>
 
     <note type="minutes" author="secretary">
-      Motions carried: <ref href="#m1-result">minutes</ref>,
-      <ref href="#m2-result">audit report</ref>,
-      <ref href="#m4-result">Sunday pilot</ref>.
-      Motion failed: <ref href="#m3-result">permanent Sunday hours</ref>.
+      Motions carried: <ref href="#m1">minutes</ref>,
+      <ref href="#m2">audit report</ref>,
+      <ref href="#m4">Sunday pilot</ref>.
+      Motion failed: <ref href="#m3">permanent Sunday hours</ref>.
       Open actions: <ref href="#a1">a1</ref>, <ref href="#a2">a2</ref>,
       <ref href="#a3">a3</ref>.
     </note>

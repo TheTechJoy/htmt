@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+<!-- HTMT 1.0 schema, RELAX NG XML syntax.
+     Equivalent to htmt-1.0.rnc, which is normative; if they differ, the .rnc governs.
+     Used by tools/validate.py so that validation needs only lxml.
+     Regenerate from the .rnc with: python3 tools/make_rng.py
+     Released into the public domain under The Unlicense (https://unlicense.org/). -->
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" ns="https://thetechjoy.com/htmt/1.0"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start><ref name="transcript"/></start>
+  <define name="id-type"><data type="ID"/></define>
+  <define name="idref-type"><data type="IDREF"/></define>
+  <define name="uri-type"><data type="anyURI"/></define>
+  <define name="token-type"><data type="token"><param name="pattern">[a-z][a-z0-9]*(-[a-z0-9]+)*</param></data></define>
+  <define name="clock-type"><data type="token"><param name="pattern">[0-9]+:[0-5][0-9]:[0-5][0-9](\.[0-9]{1,6})?</param></data></define>
+  <define name="datetime-type"><data type="dateTime"/></define>
+  <define name="date-type"><choice><data type="date"/><data type="dateTime"/></choice></define>
+  <define name="confidence-type"><data type="decimal"><param name="minInclusive">0</param><param name="maxInclusive">1</param></data></define>
+  <define name="semantic-attrs">
+    <optional><attribute name="id"><ref name="id-type"/></attribute></optional>
+    <optional><attribute name="summary"><text/></attribute></optional>
+  </define>
+  <define name="common-attrs">
+    <optional><attribute name="xml:lang" ns="http://www.w3.org/XML/1998/namespace"><data type="language"/></attribute></optional>
+    <optional><attribute name="xml:space" ns="http://www.w3.org/XML/1998/namespace"><choice><value>default</value><value>preserve</value></choice></attribute></optional>
+    <zeroOrMore><ref name="foreign-attribute"/></zeroOrMore>
+  </define>
+  <define name="foreign-attribute">
+    <attribute><anyName><except><nsName ns=""/><nsName ns="http://www.w3.org/XML/1998/namespace"/><nsName/></except></anyName><text/></attribute>
+  </define>
+  <define name="foreign-element">
+    <element><anyName><except><nsName/></except></anyName>
+      <zeroOrMore><choice><attribute><anyName/><text/></attribute><text/><ref name="foreign-element"/><ref name="any-htmt-inline"/></choice></zeroOrMore>
+    </element>
+  </define>
+  <define name="any-htmt-inline"><choice><ref name="ref"/><ref name="semantic"/></choice></define>
+  <define name="transcript">
+    <element name="transcript">
+      <attribute name="version"><value>1.0</value></attribute>
+      <optional><attribute name="id"><ref name="id-type"/></attribute></optional>
+      <optional><attribute name="title"><text/></attribute></optional>
+      <optional><attribute name="date"><ref name="date-type"/></attribute></optional>
+      <optional><attribute name="duration"><ref name="clock-type"/></attribute></optional>
+      <ref name="common-attrs"/>
+      <optional><ref name="meta"/></optional>
+      <optional><ref name="participants"/></optional>
+      <zeroOrMore><ref name="media"/></zeroOrMore>
+      <ref name="body"/>
+    </element>
+  </define>
+  <define name="meta"><element name="meta"><ref name="common-attrs"/><zeroOrMore><choice><ref name="property"/><ref name="foreign-element"/></choice></zeroOrMore></element></define>
+  <define name="property"><element name="property"><attribute name="name"><ref name="token-type"/></attribute><ref name="common-attrs"/><text/></element></define>
+  <define name="participants"><element name="participants"><ref name="common-attrs"/><zeroOrMore><choice><ref name="person"/><ref name="agent"/><ref name="foreign-element"/></choice></zeroOrMore></element></define>
+  <define name="person"><element name="person">
+    <attribute name="id"><ref name="id-type"/></attribute>
+    <optional><attribute name="name"><text/></attribute></optional>
+    <optional><attribute name="role"><text/></attribute></optional>
+    <optional><attribute name="href"><ref name="uri-type"/></attribute></optional>
+    <ref name="common-attrs"/><zeroOrMore><ref name="foreign-element"/></zeroOrMore></element></define>
+  <define name="agent"><element name="agent">
+    <attribute name="id"><ref name="id-type"/></attribute>
+    <optional><attribute name="name"><text/></attribute></optional>
+    <optional><attribute name="model"><text/></attribute></optional>
+    <optional><attribute name="provider"><text/></attribute></optional>
+    <optional><attribute name="role"><text/></attribute></optional>
+    <optional><attribute name="href"><ref name="uri-type"/></attribute></optional>
+    <ref name="common-attrs"/><zeroOrMore><ref name="foreign-element"/></zeroOrMore></element></define>
+  <define name="media"><element name="media">
+    <optional><attribute name="id"><ref name="id-type"/></attribute></optional>
+    <optional><attribute name="type"><choice><value>audio</value><value>video</value><value>text</value><value>other</value></choice></attribute></optional>
+    <attribute name="src"><ref name="uri-type"/></attribute>
+    <optional><attribute name="duration"><ref name="clock-type"/></attribute></optional>
+    <optional><attribute name="offset"><ref name="clock-type"/></attribute></optional>
+    <ref name="common-attrs"/><zeroOrMore><ref name="foreign-element"/></zeroOrMore></element></define>
+  <define name="body"><element name="body"><ref name="common-attrs"/><zeroOrMore><ref name="flow"/></zeroOrMore></element></define>
+  <define name="flow"><choice><ref name="turn"/><ref name="event"/><ref name="topic"/><ref name="note"/><ref name="foreign-element"/></choice></define>
+  <define name="topic"><element name="topic">
+    <optional><attribute name="id"><ref name="id-type"/></attribute></optional>
+    <attribute name="name"><text/></attribute>
+    <optional><attribute name="start"><ref name="clock-type"/></attribute></optional>
+    <optional><attribute name="end"><ref name="clock-type"/></attribute></optional>
+    <ref name="common-attrs"/><zeroOrMore><ref name="flow"/></zeroOrMore></element></define>
+  <define name="temporal-attrs">
+    <optional><attribute name="start"><ref name="clock-type"/></attribute></optional>
+    <optional><attribute name="end"><ref name="clock-type"/></attribute></optional>
+    <optional><attribute name="datetime"><ref name="datetime-type"/></attribute></optional>
+    <optional><attribute name="media"><ref name="idref-type"/></attribute></optional>
+  </define>
+  <define name="turn"><element name="turn">
+    <optional><attribute name="id"><ref name="id-type"/></attribute></optional>
+    <optional><attribute name="speaker"><text/></attribute></optional>
+    <optional><attribute name="confidence"><ref name="confidence-type"/></attribute></optional>
+    <ref name="temporal-attrs"/><ref name="common-attrs"/><ref name="inline"/></element></define>
+  <define name="event"><element name="event">
+    <attribute name="type"><ref name="token-type"/></attribute>
+    <optional><attribute name="id"><ref name="id-type"/></attribute></optional>
+    <optional><attribute name="speaker"><text/></attribute></optional>
+    <optional><attribute name="duration"><ref name="clock-type"/></attribute></optional>
+    <ref name="temporal-attrs"/><ref name="common-attrs"/><ref name="inline"/></element></define>
+  <define name="inline"><zeroOrMore><choice><text/><ref name="ref"/><ref name="semantic"/><ref name="foreign-element"/></choice></zeroOrMore></define>
+  <define name="ref"><element name="ref">
+    <attribute name="href"><ref name="uri-type"/></attribute>
+    <optional><attribute name="type"><ref name="token-type"/></attribute></optional>
+    <ref name="common-attrs"/><ref name="inline"/></element></define>
+  <define name="semantic"><choice><ref name="question"/><ref name="answer"/><ref name="decision"/><ref name="action"/><ref name="claim"/><ref name="fact"/><ref name="risk"/><ref name="note"/><ref name="quote"/></choice></define>
+  <define name="question"><element name="question"><ref name="semantic-attrs"/><ref name="common-attrs"/><ref name="inline"/></element></define>
+  <define name="answer"><element name="answer"><attribute name="to"><ref name="idref-type"/></attribute><ref name="semantic-attrs"/><ref name="common-attrs"/><ref name="inline"/></element></define>
+  <define name="decision"><element name="decision"><ref name="semantic-attrs"/>
+    <optional><attribute name="status"><choice><value>proposed</value><value>accepted</value><value>rejected</value><value>superseded</value></choice></attribute></optional>
+    <optional><attribute name="supersedes"><ref name="idref-type"/></attribute></optional>
+    <ref name="common-attrs"/><ref name="inline"/></element></define>
+  <define name="action"><element name="action"><ref name="semantic-attrs"/>
+    <optional><attribute name="owner"><text/></attribute></optional>
+    <optional><attribute name="due"><ref name="date-type"/></attribute></optional>
+    <optional><attribute name="status"><choice><value>open</value><value>done</value><value>cancelled</value></choice></attribute></optional>
+    <ref name="common-attrs"/><ref name="inline"/></element></define>
+  <define name="claim"><element name="claim"><ref name="semantic-attrs"/>
+    <optional><attribute name="confidence"><ref name="confidence-type"/></attribute></optional>
+    <optional><attribute name="source"><ref name="uri-type"/></attribute></optional>
+    <ref name="common-attrs"/><ref name="inline"/></element></define>
+  <define name="fact"><element name="fact"><ref name="semantic-attrs"/>
+    <optional><attribute name="source"><ref name="uri-type"/></attribute></optional>
+    <ref name="common-attrs"/><ref name="inline"/></element></define>
+  <define name="risk"><element name="risk"><ref name="semantic-attrs"/>
+    <optional><attribute name="severity"><choice><value>low</value><value>medium</value><value>high</value><value>critical</value></choice></attribute></optional>
+    <ref name="common-attrs"/><ref name="inline"/></element></define>
+  <define name="note"><element name="note"><ref name="semantic-attrs"/>
+    <optional><attribute name="author"><text/></attribute></optional>
+    <optional><attribute name="type"><ref name="token-type"/></attribute></optional>
+    <ref name="common-attrs"/><ref name="inline"/></element></define>
+  <define name="quote"><element name="quote"><ref name="semantic-attrs"/>
+    <optional><attribute name="source"><ref name="uri-type"/></attribute></optional>
+    <ref name="common-attrs"/><ref name="inline"/></element></define>
+</grammar>

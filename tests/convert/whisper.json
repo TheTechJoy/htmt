@@ -1,0 +1,6 @@
+{"text": "ignored", "segments": [
+  {"id": 0, "start": 0.0, "end": 2.4, "text": " Welcome to the show.", "speaker": "SPEAKER_00"},
+  {"id": 1, "start": 2.4, "end": 5.12, "text": " Thanks for having me.", "speaker": "SPEAKER_01"},
+  {"id": 2, "start": 5.2, "end": 7.0, "text": " Let us begin.", "speaker": "SPEAKER_00"},
+  {"id": 3, "start": 7.1, "end": 8.0, "text": " No speaker on this segment."}
+]}

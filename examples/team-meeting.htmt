@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- A product planning meeting with five people and an AI notetaker.
      Shows: join/leave events, screen share, file shared, crosstalk,
-     a proposed decision that is later accepted, risks, and an agent summary. -->
+     a proposal superseded by the accepted decision, risks, and an agent summary. -->
 <transcript
   xmlns="https://thetechjoy.com/htmt/1.0"
   version="1.0"
@@ -68,7 +68,7 @@
       <event type="crosstalk" start="00:02:41" end="00:02:47" />
 
       <turn id="t5" speaker="ana" start="00:02:48" end="00:03:15">
-        <decision id="d1" status="proposed"
+        <decision id="d1" status="superseded"
                   summary="Ship offline mode in 3.2 behind a feature flag">
           Proposal: offline mode goes in 3.2, behind a flag, so we can turn it
           off if regression finds problems.

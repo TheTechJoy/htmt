@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- expect: schema: -->
+<transcript xmlns="https://thetechjoy.com/htmt/1.0" version="2.0">
+  <body><turn>Wrong version.</turn></body>
+</transcript>

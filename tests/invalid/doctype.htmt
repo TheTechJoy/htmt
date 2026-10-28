@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- expect: DOCTYPE present -->
+<!DOCTYPE transcript>
+<transcript xmlns="https://thetechjoy.com/htmt/1.0" version="1.0">
+  <body><turn>Hi.</turn></body>
+</transcript>

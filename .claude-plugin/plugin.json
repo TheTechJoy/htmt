@@ -1,0 +1,14 @@
+{
+  "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
+  "name": "htmt",
+  "version": "1.0.0",
+  "description": "Write, convert, enrich and validate HTMT (HyperText Markup Transcript) documents from meeting transcripts and voice transcriptions.",
+  "author": {
+    "name": "TechJoy"
+  },
+  "homepage": "https://github.com/TheTechJoy/htmt",
+  "repository": "https://github.com/TheTechJoy/htmt",
+  "license": "Unlicense",
+  "keywords": ["transcript", "meeting", "xml", "speech", "minutes"],
+  "skills": ["./skills/htmt"]
+}

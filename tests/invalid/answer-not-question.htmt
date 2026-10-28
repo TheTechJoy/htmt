@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- expect: answer/@to must target a <question> -->
+<transcript xmlns="https://thetechjoy.com/htmt/1.0" version="1.0">
+  <body><turn><decision id="d1">Ship it.</decision></turn><turn><answer to="d1">Yes.</answer></turn></body>
+</transcript>

@@ -1,0 +1,6 @@
+# Maintainers only: regenerate htmt-1.0.rng from htmt-1.0.rnc (tools/make_rng.py)
+# and let tools/test.py cross-check the two schema forms.
+-r requirements.txt
+rnc2rng==2.7.0
+rply==0.7.8
+appdirs==1.4.4

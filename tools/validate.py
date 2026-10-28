@@ -1,36 +1,44 @@
 #!/usr/bin/env python3
 """Validate .htmt files against the HTMT 1.0 RELAX NG schema.
 
-Usage: validate.py [-v] FILE.htmt [FILE.htmt ...]
+Usage: validate.py [-v] PATH [PATH ...]
+
+Each PATH is an .htmt file or a directory (every *.htmt in it is checked).
 
 Checks: XML well-formedness (DTDs rejected), schema validity, and the
 reference-integrity rules in Section 13 that RELAX NG cannot express
 (speaker/owner resolution when <participants> is present, fragment hrefs).
+
+Requires lxml (pip install -r requirements.txt). The schema is read from
+htmt-1.0.rng, the XML-syntax form of the normative htmt-1.0.rnc.
 """
 import sys
 import os
-import re
-import rnc2rng
-from lxml import etree
+import glob
+
+try:
+    from lxml import etree
+except ImportError:
+    sys.exit("validate.py needs lxml: pip install -r requirements.txt")
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-RNC = os.path.join(HERE, "..", "htmt-1.0.rnc")
+RNG = os.path.join(HERE, "..", "htmt-1.0.rng")
 NS = "https://thetechjoy.com/htmt/1.0"
 H = "{%s}" % NS
 
 
 def load_schema():
-    rng_text = rnc2rng.dumps(rnc2rng.load(RNC))
-    # rnc2rng emits an illegal xmlns:local="" declaration for `namespace local = ""`;
-    # the nsName ns="" it produces is correct, so just drop the declaration.
-    rng_text = re.sub(r'\s+xmlns:local=""', "", rng_text)
-    rng_text = rng_text.replace('http://www.w3.org/2001/XMLSchema"', 'http://www.w3.org/2001/XMLSchema-datatypes"')
-    return etree.RelaxNG(etree.fromstring(rng_text.encode()))
+    parser = etree.XMLParser(resolve_entities=False, no_network=True)
+    return etree.RelaxNG(etree.parse(RNG, parser))
 
 
 def clock(v):
-    h, m, sec = v.split(":")
-    return int(h) * 3600 + int(m) * 60 + float(sec)
+    """Clock-time to seconds, or None if malformed (the schema check reports that)."""
+    try:
+        h, m, sec = v.split(":")
+        return int(h) * 3600 + int(m) * 60 + float(sec)
+    except ValueError:
+        return None
 
 
 def check(path, schema):
@@ -40,6 +48,8 @@ def check(path, schema):
         doc = etree.parse(path, parser)
     except etree.XMLSyntaxError as e:
         return [f"not well-formed: {e}"]
+    except OSError as e:
+        return [f"cannot read file: {e}"]
     if doc.docinfo.doctype:
         errors.append("DOCTYPE present (forbidden, Section 4.5)")
     if not schema.validate(doc):
@@ -77,12 +87,12 @@ def check(path, schema):
         if t is not None and t.tag != H + "decision":
             errors.append(f"line {el.sourceline}: decision/@supersedes must target a <decision>")
     for el in root.iter():
-        s, e, d = el.get("start"), el.get("end"), el.get("duration")
-        if e and not s:
+        if el.get("end") and not el.get("start"):
             errors.append(f"line {el.sourceline}: end without start")
-        if s and e and clock(e) < clock(s):
+        s, e, d = (clock(el.get(a)) if el.get(a) else None for a in ("start", "end", "duration"))
+        if s is not None and e is not None and e < s:
             errors.append(f"line {el.sourceline}: end precedes start")
-        if s and e and d and el.tag == H + "event" and abs(clock(e) - clock(s) - clock(d)) > 1e-6:
+        if None not in (s, e, d) and el.tag == H + "event" and abs(e - s - d) > 1e-6:
             errors.append(f"line {el.sourceline}: duration does not equal end - start")
     medias = [m.get("id") for m in root.iter(H + "media")]
     for el in root.iter():
@@ -94,7 +104,13 @@ def check(path, schema):
 
 def main(argv):
     verbose = "-v" in argv
-    files = [a for a in argv if not a.startswith("-")]
+    files = []
+    for a in argv:
+        if a.startswith("-"):
+            continue
+        files += sorted(glob.glob(os.path.join(a, "*.htmt"))) if os.path.isdir(a) else [a]
+    if not files:
+        sys.exit(__doc__.strip().splitlines()[2])
     schema = load_schema()
     bad = 0
     for f in files:

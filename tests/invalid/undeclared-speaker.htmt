@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- expect: speaker 'ghost' is not a declared participant -->
+<transcript xmlns="https://thetechjoy.com/htmt/1.0" version="1.0">
+  <participants><person id="ana" /></participants>
+  <body><turn speaker="ghost">Hello.</turn></body>
+</transcript>

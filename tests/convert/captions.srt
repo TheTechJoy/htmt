@@ -1,0 +1,11 @@
+1
+00:00:00,500 --> 00:00:03,000
+Maria: How did the launch go?
+
+2
+00:00:03,500 --> 00:00:06,000
+[Dev] Better than expected.
+
+3
+00:00:06,100 --> 00:00:08,000
+No speaker label on this one.
